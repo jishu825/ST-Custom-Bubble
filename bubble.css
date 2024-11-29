@@ -1,0 +1,131 @@
+/* 为第一条消息添加顶部间距 */
+body.bubblechat .mes:first-child {
+    padding-top: 15px; 
+}
+
+/* 消息容器基础样式 */
+body.bubblechat .mes {
+    padding: 2px 10px;
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+}
+
+/* 用户消息容器方向 */
+body.bubblechat .mes[is_user="true"] {
+    flex-direction: row-reverse;
+}
+
+/* 调整用户消息气泡的位置 */
+body.bubblechat .mes[is_user="true"] .mes_block {
+    margin-right: -12px;
+}
+
+/* 调整系统消息气泡的位置 */
+body.bubblechat .mes:not([is_user="true"]) .mes_block {
+    margin-left: -10px;
+}
+
+/* 基础气泡样式 */
+body.bubblechat .mes_block {
+    position: relative;
+    max-width: 80%;
+    width: fit-content;
+    min-width: min-content;
+    min-height: 40px;
+    margin-top: -5px;
+    background: transparent;
+    transition: all 0.3s ease;
+    overflow: visible !important;
+}
+
+/* 公共装饰层基础样式 */
+body.bubblechat .mes_block::before,
+body.bubblechat .mes_block::after {
+    content: '';
+    position: absolute;
+    z-index: 0;
+    transition: all 0.3s ease;
+}
+
+/* 九宫格装饰层 */
+body.bubblechat .mes_block::before {
+    inset: 0;
+    border-style: solid;
+    background: transparent !important;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* 背景层基础位置 */
+body.bubblechat .mes_block::after {
+    background-color: #FEFEFE;
+    top: 34px;
+    right: 31.5px;
+    bottom: 21px;
+    left: 38.25px;
+}
+
+/* 系统消息背景调整 */
+body.bubblechat .mes:not([is_user="true"]) .mes_block::after {
+    background-color: #FEDEA9;
+    top: 34.5px;
+    right: 38px;
+    bottom: 22.5px;
+    left: 31.5px;
+}
+
+/* 系统消息(黄狗)装饰 */
+body.bubblechat .mes:not([is_user="true"]) .mes_block::before {
+    border-width: 35.5px 39px 23.5px 32.5px;
+    border-image: url('https://files.catbox.moe/pk4c8u.png')
+                 1420 1560 940 1300 / 35.5px 39px 23.5px 32.5px
+                 stretch;
+}
+
+/* 用户消息(白猫)装饰 */
+body.bubblechat .mes[is_user="true"] .mes_block::before {
+    border-width: 35px 32.5px 22.5px 38.75px;
+    border-image: url('https://files.catbox.moe/kwcl0r.png')
+                 1400 1300 900 1550 / 35px 32.5px 22.5px 38.75px
+                 stretch;
+}
+
+/* 消息文本样式 */
+body.bubblechat .mes_text {
+    position: relative;
+    z-index: 2;
+    padding: 20px 30px 10px 20px;
+    width: 100%;
+    min-width: 65px;
+    min-height: 50px;
+    box-sizing: border-box;
+    word-break: break-word !important;
+    display: block !important;
+    overflow: visible !important;
+}
+
+/* 消息发送者名称 */
+.mes_block .ch_name {
+    position: relative;
+    z-index: 3;
+    max-height: 0;
+    max-width: 0;
+    overflow: hidden;
+    transform: scale(0);
+    opacity: 0;
+    transform-origin: left center;
+    white-space: nowrap;
+}
+
+/* 鼠标悬停时显示发送者名称 */
+.mes_block:hover .ch_name {
+    max-height: none;
+    max-width: 100%;
+    transform: scale(1);
+    opacity: 1;
+    overflow: visible;
+    margin-bottom: -20px;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
