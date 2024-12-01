@@ -1,22 +1,5 @@
 /* style.css */
 
-.menu_button {
-    cursor: pointer;
-    padding: 5px 10px;
-    margin-right: 8px;
-    border-radius: 4px;
-    transition: background-color 0.2s;
-}
-
-.menu_button:hover {
-    background-color: var(--hover-color, #4a4a4a);
-}
-
-.fa-circle-info {
-    margin-left: 5px;
-    cursor: help;
-}
-
 /* Base bubble styles */
 .bubble-style-settings {
     font-family: Arial, sans-serif;
