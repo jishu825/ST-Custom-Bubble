@@ -1,0 +1,28 @@
+/* style.css */
+
+/* Base bubble styles */
+.bubble-style-settings {
+    font-family: Arial, sans-serif;
+}
+
+/* Decoration effects */
+.watercolor-effect {
+    position: relative;
+}
+
+.watercolor-effect::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    right: -10px;
+    bottom: -10px;
+    background: var(--decoration-color);
+    filter: blur(calc(var(--decoration-intensity) * 2px));
+    opacity: 0.3;
+    z-index: -1;
+    border-radius: inherit;
+    mix-blend-mode: multiply;
+}
+
+/* [Previous CSS code for other effects] */
