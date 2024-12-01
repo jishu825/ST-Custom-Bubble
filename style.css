@@ -1,18 +1,20 @@
 /* style.css */
 
-.custom-bubble-settings-button {
-    padding: 8px 16px;
-    margin: 8px;
+.menu_button {
     cursor: pointer;
-    background-color: #3d3d3d;
-    border: 1px solid #666;
+    padding: 5px 10px;
+    margin-right: 8px;
     border-radius: 4px;
-    color: white;
     transition: background-color 0.2s;
 }
 
-.custom-bubble-settings-button:hover {
-    background-color: #4a4a4a;
+.menu_button:hover {
+    background-color: var(--hover-color, #4a4a4a);
+}
+
+.fa-circle-info {
+    margin-left: 5px;
+    cursor: help;
 }
 
 /* Base bubble styles */
