@@ -1,39 +1,41 @@
 // scripts/ui.js
 
-export function initializeUI() {
-    // Add the button after chat style selection and before theme colors
-    const themeElements = document.querySelector('div[name="themeElements"]');
-    const avatarAndChatDisplay = themeElements.querySelector('div[name="AvatarAndChatDisplay"]');
-    
-    // Create the button container
+// scripts/ui.js
+
+function addCustomBubbleButton() {
     const customBubbleContainer = document.createElement('div');
     customBubbleContainer.className = 'flex-container alignItemsBaseline';
-    
-    // Create the button
+    customBubbleContainer.style.marginTop = '10px';
+
     const customBubbleButton = document.createElement('div');
     customBubbleButton.className = 'menu_button';
-    customBubbleButton.innerHTML = '<i class="fa-solid fa-palette"></i> 气泡样式设置';
+    customBubbleButton.style.display = 'flex';
+    customBubbleButton.style.alignItems = 'center';
+    customBubbleButton.style.gap = '5px';
+    customBubbleButton.style.width = '100%';
+    customBubbleButton.innerHTML = '<i class="fa-solid fa-palette"></i><span>气泡样式设置</span>';
     customBubbleButton.addEventListener('click', toggleSettingsPanel);
-    
-    // Add info icon
-    const infoIcon = document.createElement('div');
-    infoIcon.className = 'fa-solid fa-circle-info opacity50p';
-    infoIcon.title = '自定义聊天气泡的样式和特效';
-    infoIcon.setAttribute('data-i18n', '[title]Customize chat bubble styles and effects');
-    
-    // Assemble the container
+
     customBubbleContainer.appendChild(customBubbleButton);
-    customBubbleContainer.appendChild(infoIcon);
-    
-    // Insert after chat style selection
+
+    const themeElements = document.querySelector('div[name="themeElements"]');
+    const avatarAndChatDisplay = themeElements.querySelector('div[name="AvatarAndChatDisplay"]');
     avatarAndChatDisplay.insertAdjacentElement('afterend', customBubbleContainer);
+}
+
+export function initializeUI() {
+    // Add the custom bubble button to the interface
+    addCustomBubbleButton();
 
     // Add settings panel to page (initially hidden)
     document.body.insertAdjacentHTML('beforeend', settingsHtml);
     const settingsPanel = document.getElementById('bubble-style-settings');
     settingsPanel.style.display = 'none';
 
-    // Rest of the initialization code...
+    // Initialize panel functionality
+    setupPanelDragging();
+    setupControlEvents();
+    refreshCharacterSelect();
 }
 
 export const settingsHtml = `[Previous HTML template code]`;
