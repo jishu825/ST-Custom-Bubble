@@ -1,26 +1,32 @@
 // index.js
+import { EventEmitter } from "./lib/eventemitter.js";
+import { extension_settings } from "./extensions.js";
 
-// Import required modules
-import { initializeUI } from "./scripts/ui.js";
-import { setupEffects } from "./scripts/effects.js";
-import { initializeColorPickers } from "./scripts/colorPicker.js";
-import { setupUtils } from "./scripts/utils.js";
+const extensionName = "custom-bubble-style";
+const defaultSettings = {
+    enabled: true,
+    // Add other default settings here
+};
 
-// Wait for SillyTavern to be ready
-window.addEventListener('load', () => {
-    // Initialize extension when the app is ready
-    const interval = setInterval(() => {
-        const themeElements = document.querySelector('div[name="themeElements"]');
-        if (themeElements) {
-            clearInterval(interval);
-            initializeExtension();
-        }
-    }, 100);
-});
-
-function initializeExtension() {
-    setupUtils();
-    initializeColorPickers();
-    setupEffects();
-    initializeUI();
+// Initialize extension settings
+if (!extension_settings[extensionName]) {
+    extension_settings[extensionName] = {};
 }
+
+Object.assign(extension_settings[extensionName], defaultSettings);
+
+// Add extension button to extensions menu
+jQuery(async () => {
+    const settingsHtml = await $.get(`scripts/extensions/third-party/st-custom-bubble/bubble-settings.html`);
+    
+    const extensionsDiv = $("#extensions_settings2");
+    extensionsDiv.append(settingsHtml);
+
+    $("#custom-bubble-button").on("click", function() {
+        $("#bubble-style-settings").toggle();
+    });
+
+    // Initialize other extension functionality
+    setupColorPickers();
+    setupEffects();
+});
