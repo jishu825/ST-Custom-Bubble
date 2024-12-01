@@ -1,5 +1,20 @@
 /* style.css */
 
+.custom-bubble-settings-button {
+    padding: 8px 16px;
+    margin: 8px;
+    cursor: pointer;
+    background-color: #3d3d3d;
+    border: 1px solid #666;
+    border-radius: 4px;
+    color: white;
+    transition: background-color 0.2s;
+}
+
+.custom-bubble-settings-button:hover {
+    background-color: #4a4a4a;
+}
+
 /* Base bubble styles */
 .bubble-style-settings {
     font-family: Arial, sans-serif;
