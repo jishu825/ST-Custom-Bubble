@@ -1,37 +1,37 @@
-# ST-Custom-Bubble
+# SillyTavern Chat Stylist
 
-A SillyTavern extension that provides advanced customization options for chat bubbles, including various decoration effects and detailed style controls.
+为 SillyTavern 聊天界面提供全面的样式定制功能，包括消息气泡、文本样式和特效等个性化设置选项。
 
-## Features
+## 功能特点
 
-- Customizable bubble colors and opacity
-- Border styling with adjustable width and color
-- Independent padding control for all sides
-- Special text styling for regular, italic, and quoted text
-- Quote text glow effects
-- Decorative effects including:
-  - Water color effect
-  - Glowing particles
-  - Sparkles
-  - Paper texture
-  - Neon glow
-  - Gold foil effect
+- 个性化消息气泡样式
+  - 背景颜色和透明度
+  - 渐变效果
+  - 边框样式
+- 文本样式定制
+  - 主要文本颜色
+  - 斜体文本样式
+  - 引用文本效果
+  - 文本荧光效果
+- 每个角色独立样式
+- 实时预览
+- 样式导入/导出
 
-## Installation
+## 安装方法
 
-1. In SillyTavern, go to the Extensions tab
-2. Click "Install extension"
-3. Enter this repository URL
-4. Click Install
+1. 打开 SillyTavern 的扩展页面
+2. 点击"安装扩展"
+3. 输入此仓库的 URL
+4. 点击保存
 
-## Usage
+## 使用说明
 
-1. Select a character from the dropdown menu
-2. Adjust colors and styles using the provided controls
-3. Apply decoration effects as desired
-4. Click "Save Style" to preserve your settings
-5. Use "Reset" to return to default settings
+[详细的使用说明文档]
+
+## 开发说明
+
+[开发相关信息]
 
 ## License
 
-[Your chosen license]
+MIT License
