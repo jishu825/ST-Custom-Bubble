@@ -21,3 +21,94 @@
 .inline-drawer-content {
     padding: 5px 10px;
 }
+
+/* 编辑器面板样式 */
+.chat-stylist-panel {
+    position: fixed;
+    top: 50px;
+    right: 20px;
+    width: 300px;
+    background: var(--SmartThemeBlurTintColor);
+    backdrop-filter: blur(var(--SmartThemeBlurStrength));
+    border: 1px solid var(--SmartThemeBorderColor);
+    border-radius: 10px;
+    z-index: 10000;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+
+/* 面板头部 */
+.chat-stylist-panel .panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--SmartThemeBorderColor);
+    cursor: move;
+}
+
+/* 控制按钮 */
+.chat-stylist-panel .panel-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.chat-stylist-panel .panel-controls button {
+    background: none;
+    border: none;
+    color: var(--SmartThemeBodyColor);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+}
+
+.chat-stylist-panel .panel-controls button:hover {
+    background: var(--SmartThemeBlurTintColor);
+}
+
+/* 面板内容区域 */
+.chat-stylist-panel .panel-content {
+    padding: 15px;
+}
+
+/* 样式部分 */
+.chat-stylist-panel .style-section {
+    margin-bottom: 15px;
+}
+
+.chat-stylist-panel .style-section label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.9em;
+}
+
+.chat-stylist-panel .section-row {
+    margin-bottom: 10px;
+}
+
+/* 输入控件样式 */
+.chat-stylist-panel select,
+.chat-stylist-panel input[type="color"] {
+    width: 100%;
+    padding: 4px;
+    border: 1px solid var(--SmartThemeBorderColor);
+    border-radius: 4px;
+    background: var(--SmartThemeBlurTintColor);
+    color: var(--SmartThemeBodyColor);
+}
+
+.chat-stylist-panel input[type="range"] {
+    width: 100%;
+    margin: 8px 0;
+}
+
+/* 最小化状态 */
+.chat-stylist-panel.minimized {
+    height: auto;
+}
+
+/* 透明度值显示 */
+.chat-stylist-panel .opacity-value {
+    font-size: 0.8em;
+    color: var(--SmartThemeBodyColor);
+    margin-left: 5px;
+}
