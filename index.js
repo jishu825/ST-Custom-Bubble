@@ -1,6 +1,10 @@
 import { extension_settings } from "../../../extensions.js";
 import { saveSettingsDebounced } from "../../../../script.js";
 
+const debug = {
+    log: (...args) => console.log('[Chat Stylist]', ...args)
+};
+
 class ChatStylist {
     constructor() {
         this.settings = extension_settings.chat_stylist || {
@@ -8,6 +12,9 @@ class ChatStylist {
         };
         extension_settings.chat_stylist = this.settings;
         this.panel = null;
+        this.isDragging = false;
+        this.isResizing = false;
+        this.touchIdentifier = null;
     }
 
     addSettings() {
@@ -29,16 +36,14 @@ class ChatStylist {
 
         $('#extensions_settings2').append(html);
 
-        // 绑定编辑器按钮事件
         $('#chat-stylist-button').on('click', () => {
             this.showEditor();
         });
         
-        debug.log('Settings added and events bound');
+        debug.log('Settings added');
     }
 
     createEditorPanel() {
-        // 如果面板已存在，则不重复创建
         if (this.panel) return;
 
         const panel = document.createElement('div');
@@ -47,93 +52,193 @@ class ChatStylist {
         
         panel.innerHTML = `
             <div class="panel-header">
-                <span>Chat Style Editor</span>
+                <div class="header-tabs">
+                    <button class="tab-button active" data-tab="bubble">气泡样式</button>
+                    <button class="tab-button" data-tab="text">文本样式</button>
+                </div>
                 <div class="panel-controls">
-                    <button class="btn-minimize" title="最小化">
+                    <button class="btn-minimize">
                         <i class="fa-solid fa-minus"></i>
                     </button>
-                    <button class="btn-close" title="关闭">
+                    <button class="btn-close">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
             </div>
             <div class="panel-content">
-                <!-- 角色选择 -->
-                <div class="style-section">
+                <div class="control-group">
                     <label>选择角色 / Select Character</label>
-                    <select id="style-character-select">
-                        <option value="">--请选择--</option>
+                    <select id="character-select" class="form-control">
+                        <option value="">选择角色...</option>
                     </select>
                 </div>
 
-                <!-- 主设置面板 -->
-                <div class="style-section">
-                    <div class="section-row">
-                        <div class="style-item">
-                            <label>气泡背景色 / Bubble Background</label>
-                            <input type="color" id="style-bubble-color">
-                            <input type="range" id="style-bubble-opacity" min="0" max="100" value="100">
-                            <span class="opacity-value">100%</span>
-                        </div>
-                    </div>
-                    
-                    <div class="section-row">
-                        <div class="style-item">
-                            <label>文本颜色 / Text Color</label>
-                            <input type="color" id="style-text-color">
+                <div class="tab-content active" data-tab="bubble">
+                    <div class="control-group">
+                        <label>背景样式 / Background Style</label>
+                        <div class="color-picker-wrapper">
+                            <toolcool-color-picker id="background-color" color="rgba(254, 222, 169, 0.5)"></toolcool-color-picker>
                         </div>
                     </div>
                 </div>
-            </div>`;
 
-        this.panel = panel;
+                <div class="tab-content" data-tab="text">
+                    <div class="control-group">
+                        <label>主要文本 / Main Text</label>
+                        <div class="color-picker-wrapper">
+                            <toolcool-color-picker id="main-text-color" color="rgba(208, 206, 196, 1)"></toolcool-color-picker>
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <label>斜体文本 / Italic Text</label>
+                        <div class="color-picker-wrapper">
+                            <toolcool-color-picker id="italics-text-color" color="rgba(183, 160, 255, 1)"></toolcool-color-picker>
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <label>引用文本 / Quote Text</label>
+                        <div class="color-picker-wrapper">
+                            <toolcool-color-picker id="quote-text-color" color="rgba(224, 159, 254, 1)"></toolcool-color-picker>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-resize-handle"></div>`;
+
         document.body.appendChild(panel);
+        this.panel = panel;
         this.initPanelEvents();
     }
 
     initPanelEvents() {
+        const panel = this.panel;
+        
         // 关闭按钮
-        this.panel.querySelector('.btn-close').addEventListener('click', () => {
-            this.hidePanel();
-        });
+        panel.querySelector('.btn-close').addEventListener('click', () => this.hidePanel());
 
         // 最小化按钮
-        this.panel.querySelector('.btn-minimize').addEventListener('click', () => {
-            this.toggleMinimize();
+        panel.querySelector('.btn-minimize').addEventListener('click', () => this.toggleMinimize());
+
+        // 标签页切换
+        panel.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const tabName = button.dataset.tab;
+                panel.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                panel.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                panel.querySelector(`.tab-content[data-tab="${tabName}"]`).classList.add('active');
+            });
         });
 
-        // 使面板可拖动
-        this.makeElementDraggable(this.panel);
+        this.initDragAndResize();
     }
 
-    makeElementDraggable(element) {
-        let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-        const header = element.querySelector('.panel-header');
+    initDragAndResize() {
+        const panel = this.panel;
+        const header = panel.querySelector('.panel-header');
+        const resizeHandle = panel.querySelector('.panel-resize-handle');
 
-        header.onmousedown = dragMouseDown;
+        // 拖动处理
+        const handleDragStart = (e) => {
+            if (e.target.closest('.panel-controls')) return;
+            this.isDragging = true;
+            const touch = e.touches ? e.touches[0] : e;
+            this.touchIdentifier = touch.identifier;
+            
+            const rect = panel.getBoundingClientRect();
+            this.dragOffset = {
+                x: (touch.clientX - rect.left),
+                y: (touch.clientY - rect.top)
+            };
+            
+            panel.classList.add('dragging');
+        };
 
-        function dragMouseDown(e) {
+        const handleDragMove = (e) => {
+            if (!this.isDragging) return;
             e.preventDefault();
-            pos3 = e.clientX;
-            pos4 = e.clientY;
-            document.onmouseup = closeDragElement;
-            document.onmousemove = elementDrag;
-        }
+            
+            const touch = e.touches ? 
+                Array.from(e.touches).find(t => t.identifier === this.touchIdentifier) : 
+                e;
+            if (!touch) return;
 
-        function elementDrag(e) {
+            let newX = touch.clientX - this.dragOffset.x;
+            let newY = touch.clientY - this.dragOffset.y;
+
+            const rect = panel.getBoundingClientRect();
+            newX = Math.max(0, Math.min(window.innerWidth - rect.width, newX));
+            newY = Math.max(0, Math.min(window.innerHeight - rect.height, newY));
+
+            panel.style.left = `${newX}px`;
+            panel.style.top = `${newY}px`;
+        };
+
+        const handleDragEnd = () => {
+            if (!this.isDragging) return;
+            this.isDragging = false;
+            this.touchIdentifier = null;
+            panel.classList.remove('dragging');
+        };
+
+        // 调整大小处理
+        const handleResizeStart = (e) => {
+            this.isResizing = true;
+            const touch = e.touches ? e.touches[0] : e;
+            this.touchIdentifier = touch.identifier;
+            panel.classList.add('resizing');
+        };
+
+        const handleResizeMove = (e) => {
+            if (!this.isResizing) return;
             e.preventDefault();
-            pos1 = pos3 - e.clientX;
-            pos2 = pos4 - e.clientY;
-            pos3 = e.clientX;
-            pos4 = e.clientY;
-            element.style.top = (element.offsetTop - pos2) + "px";
-            element.style.left = (element.offsetLeft - pos1) + "px";
-        }
+            
+            const touch = e.touches ? 
+                Array.from(e.touches).find(t => t.identifier === this.touchIdentifier) : 
+                e;
+            if (!touch) return;
 
-        function closeDragElement() {
-            document.onmouseup = null;
-            document.onmousemove = null;
-        }
+            const rect = panel.getBoundingClientRect();
+            const width = touch.clientX - rect.left;
+            const height = touch.clientY - rect.top;
+
+            panel.style.width = `${Math.max(300, width)}px`;
+            panel.style.height = `${Math.max(200, height)}px`;
+        };
+
+        const handleResizeEnd = () => {
+            if (!this.isResizing) return;
+            this.isResizing = false;
+            this.touchIdentifier = null;
+            panel.classList.remove('resizing');
+        };
+
+        // 添加事件监听器
+        // 鼠标事件
+        header.addEventListener('mousedown', handleDragStart);
+        resizeHandle.addEventListener('mousedown', handleResizeStart);
+        document.addEventListener('mousemove', (e) => {
+            handleDragMove(e);
+            handleResizeMove(e);
+        });
+        document.addEventListener('mouseup', () => {
+            handleDragEnd();
+            handleResizeEnd();
+        });
+
+        // 触摸事件
+        header.addEventListener('touchstart', handleDragStart, { passive: false });
+        resizeHandle.addEventListener('touchstart', handleResizeStart, { passive: false });
+        document.addEventListener('touchmove', (e) => {
+            handleDragMove(e);
+            handleResizeMove(e);
+        }, { passive: false });
+        document.addEventListener('touchend', () => {
+            handleDragEnd();
+            handleResizeEnd();
+        });
     }
 
     showEditor() {
@@ -151,11 +256,15 @@ class ChatStylist {
 
     toggleMinimize() {
         const content = this.panel.querySelector('.panel-content');
-        if (content.style.display === 'none') {
+        const minimizeBtn = this.panel.querySelector('.btn-minimize i');
+        
+        if (this.panel.classList.contains('minimized')) {
             content.style.display = 'block';
+            minimizeBtn.className = 'fa-solid fa-minus';
             this.panel.classList.remove('minimized');
         } else {
             content.style.display = 'none';
+            minimizeBtn.className = 'fa-solid fa-plus';
             this.panel.classList.add('minimized');
         }
     }
