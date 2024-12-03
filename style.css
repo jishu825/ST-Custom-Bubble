@@ -315,12 +315,12 @@ select.form-control {
 /* 移动设备适配 */
 @media (max-width: 768px) {
     .chat-stylist-panel {
-        top: 50%;
+        top: 20%; 
         left: 50%;
-        transform: translate(-50%, -50%);
+        transform: translate(-50%, 0); 
         width: 90%;
         max-width: 320px;
-        max-height: 80vh;
+        max-height: 70vh;
     }
 
     .padding-controls {
