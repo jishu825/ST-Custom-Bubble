@@ -3,12 +3,15 @@ if (!customElements.get('toolcool-color-picker')) {
     console.error('toolcool-color-picker component is not loaded. Please ensure the component is properly included.');
 }
 
-// Initialize required objects
+console.log('Loading Chat Stylist extension...');
+
 if (!window.extension_settings) {
+    console.log('Creating extension_settings object');
     window.extension_settings = {};
 }
 
 const MODULE_NAME = 'chat-stylist';
+console.log(`Initializing ${MODULE_NAME}...`);
 
 // Initialize module settings
 if (!window.extension_settings[MODULE_NAME]) {
@@ -770,7 +773,12 @@ window.extensions = window.extensions || {};
 window.extensions[MODULE_NAME] = chatStylist;
 
 // Initialize when document is ready
-jQuery(() => {
-    chatStylist.init();
+jQuery(async () => {
+    try {
+        console.log('Starting Chat Stylist initialization...');
+        await chatStylist.init();
+        console.log('Chat Stylist initialized successfully');
+    } catch (error) {
+        console.error('Failed to initialize Chat Stylist:', error);
+    }
 });
-    
