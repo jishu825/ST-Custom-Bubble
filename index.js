@@ -1,3 +1,14 @@
+//#region ST imports
+import {
+    eventSource,
+    event_types,
+    saveSettingsDebounced
+} from '../../../script.js';
+import { getContext } from '../../../extensions.js';
+import { power_user } from '../../../power-user.js';
+import { extension_settings } from '../../../extensions.js';
+//#endregion ST imports
+
 // 设置常量
 const MODULE_NAME = 'chat-stylist';
 const EXTENSION_READY_TIMEOUT = 30000; // 30秒超时
@@ -53,56 +64,72 @@ if (!window.extension_settings[MODULE_NAME]) {
 
 class ChatStylist {
     constructor() {
-        this.settings = window.extension_settings[MODULE_NAME];
-        this.currentCharacter = null;
-        this.panel = null;
-        this.isDragging = false;
-        this.isResizing = false;
-        this.dragOffset = { x: 0, y: 0 };
-        this.resizeStart = { width: 0, height: 0, x: 0, y: 0 };
-    }
+    this.settings = window.extension_settings[MODULE_NAME];
+    this.currentCharacter = null;
+    this.panel = null;
+    this.isDragging = false;
+    this.isResizing = false;
+    this.dragOffset = { x: 0, y: 0 };
+    this.resizeStart = { width: 0, height: 0, x: 0, y: 0 };
 
-    async init() {
-        try {
-            await this.waitForExtensionSettings();
-            console.log('Extension settings ready');
-            
-            // 添加扩展按钮到设置面板
-            const extensionHtml = `
-                <div id="chat-stylist-settings" class="extension-settings">
-                    <div class="inline-drawer">
-                        <div class="inline-drawer-toggle inline-drawer-header">
-                            <b class="inline-drawer-title">聊天气泡样式编辑器</b>
-                            <div class="inline-drawer-icon fa-solid fa-circle-chevron-down"></div>
-                        </div>
-                        <div class="inline-drawer-content">
-                            <div class="chat-stylist-control">
-                                <div id="chat-stylist-button" class="menu_button">
-                                    <i class="fa-solid fa-palette"></i>
-                                    <span class="button-label">打开样式编辑器</span>
-                                </div>
-                            </div>
+    // 绑定事件监听器
+    eventSource.on(event_types.APP_READY, () => {
+        this.addExtensionControls();
+    });
+}
+
+addExtensionControls() {
+    const settingsHtml = `
+        <div id="chat-stylist-settings" class="extension-settings">
+            <div class="inline-drawer">
+                <div class="inline-drawer-toggle inline-drawer-header">
+                    <b>Chat Stylist</b>
+                    <div class="inline-drawer-icon fa-solid fa-circle-chevron-down"></div>
+                </div>
+                <div class="inline-drawer-content">
+                    <div class="chat-stylist-settings">
+                        <label class="checkbox_label">
+                            <input type="checkbox" id="chat-stylist-enabled" ${this.settings.enabled ? 'checked' : ''}>
+                            <span>启用聊天气泡样式编辑器</span>
+                        </label>
+                        <div id="chat-stylist-button" class="menu_button">
+                            <i class="fa-solid fa-palette"></i>
+                            <span>打开样式编辑器</span>
                         </div>
                     </div>
-                </div>`;
+                </div>
+            </div>
+        </div>`;
 
-            $('#extensions_settings2').append(extensionHtml);
-            
-            $('#chat-stylist-button').on('click', () => {
-                if (!this.panel) {
-                    this.createEditorPanel();
-                    this.initEventListeners();
-                }
-                this.showPanel();
-            });
+    $('#extensions_settings').append(settingsHtml);
 
-            this.initStyles();
-            console.log('Chat Stylist initialized successfully');
-        } catch (error) {
-            console.error('Failed to initialize Chat Stylist:', error);
+    // 添加开关事件监听
+    $('#chat-stylist-enabled').on('input', () => {
+        this.settings.enabled = !!$('#chat-stylist-enabled').prop('checked');
+        saveSettingsDebounced();
+    });
+
+    // 添加按钮事件监听
+    $('#chat-stylist-button').on('click', () => {
+        if (!this.panel) {
+            this.createEditorPanel();
+            this.initEventListeners();
         }
-    }
+        this.showPanel();
+    });
+}
 
+    async init() {
+    try {
+        await this.waitForExtensionSettings();
+        console.log('Extension settings ready');
+        this.initStyles();
+        console.log('Chat Stylist initialized successfully');
+    } catch (error) {
+        console.error('Failed to initialize Chat Stylist:', error);
+    }
+}
+    
     async waitForExtensionSettings() {
         const startTime = Date.now();
         while (!document.getElementById('extensions_settings2')) {
