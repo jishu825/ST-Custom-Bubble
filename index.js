@@ -7,8 +7,38 @@ const debug = {
 
 class ChatStylist {
     constructor() {
+        // 初始化设置
         this.settings = extension_settings.chat_stylist || {
-            styles: {} 
+            styles: {},
+            defaultStyle: {
+                background: {
+                    type: 'solid',
+                    color: 'rgba(254, 222, 169, 0.5)',
+                    gradient: {
+                        colors: ['rgba(254, 222, 169, 0.5)', 'rgba(255, 255, 255, 0.5)'],
+                        positions: [0, 100],
+                        angle: 90
+                    }
+                },
+                text: {
+                    main: 'rgba(208, 206, 196, 1)',
+                    italics: 'rgba(183, 160, 255, 1)',
+                    quote: {
+                        color: 'rgba(224, 159, 254, 1)',
+                        glow: {
+                            enabled: false,
+                            color: 'rgba(224, 159, 254, 0.8)',
+                            intensity: 5
+                        }
+                    }
+                },
+                padding: {
+                    top: 10,
+                    right: 15,
+                    bottom: 10,
+                    left: 15
+                }
+            }
         };
         extension_settings.chat_stylist = this.settings;
         this.panel = null;
@@ -57,6 +87,12 @@ class ChatStylist {
                     <button class="tab-button" data-tab="text">文本样式</button>
                 </div>
                 <div class="panel-controls">
+                    <button class="btn-save" title="保存样式">
+                        <i class="fa-solid fa-save"></i>
+                    </button>
+                    <button class="btn-reset" title="重置样式">
+                        <i class="fa-solid fa-rotate-left"></i>
+                    </button>
                     <button class="btn-minimize">
                         <i class="fa-solid fa-minus"></i>
                     </button>
@@ -76,8 +112,55 @@ class ChatStylist {
                 <div class="tab-content active" data-tab="bubble">
                     <div class="control-group">
                         <label>背景样式 / Background Style</label>
-                        <div class="color-picker-wrapper">
-                            <toolcool-color-picker id="background-color" color="rgba(254, 222, 169, 0.5)"></toolcool-color-picker>
+                        <select id="background-type" class="form-control">
+                            <option value="solid">纯色 / Solid</option>
+                            <option value="linear">线性渐变 / Linear Gradient</option>
+                            <option value="radial">径向渐变 / Radial Gradient</option>
+                        </select>
+
+                        <div id="solid-background" class="background-settings">
+                            <div class="color-picker-wrapper">
+                                <toolcool-color-picker id="background-color" color="rgba(254, 222, 169, 0.5)"></toolcool-color-picker>
+                            </div>
+                        </div>
+
+                        <div id="gradient-background" class="background-settings" style="display: none;">
+                            <div class="color-stop-container">
+                                <div class="color-stop">
+                                    <toolcool-color-picker class="gradient-color" color="rgba(254, 222, 169, 0.5)"></toolcool-color-picker>
+                                    <div class="gradient-position-control">
+                                        <label>位置 / Position (%)</label>
+                                        <input type="number" class="gradient-position" value="0" min="0" max="100">
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="add-color-stop">+ 添加颜色节点 / Add Color Stop</button>
+                            <div class="gradient-angle">
+                                <label>渐变角度 / Angle: <span class="angle-value">90°</span></label>
+                                <input type="range" class="gradient-angle-slider" min="0" max="360" value="90">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <label>内边距 / Padding (px)</label>
+                        <div class="padding-controls">
+                            <div class="padding-input">
+                                <label>上 / Top</label>
+                                <input type="number" id="padding-top" value="10" min="0">
+                            </div>
+                            <div class="padding-input">
+                                <label>右 / Right</label>
+                                <input type="number" id="padding-right" value="15" min="0">
+                            </div>
+                            <div class="padding-input">
+                                <label>下 / Bottom</label>
+                                <input type="number" id="padding-bottom" value="10" min="0">
+                            </div>
+                            <div class="padding-input">
+                                <label>左 / Left</label>
+                                <input type="number" id="padding-left" value="15" min="0">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -102,6 +185,23 @@ class ChatStylist {
                         <div class="color-picker-wrapper">
                             <toolcool-color-picker id="quote-text-color" color="rgba(224, 159, 254, 1)"></toolcool-color-picker>
                         </div>
+                        
+                        <div class="quote-glow-settings">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="quote-glow-enabled">
+                                启用荧光效果 / Enable Glow Effect
+                            </label>
+                            <div id="quote-glow-controls" style="display: none;">
+                                <div class="color-picker-wrapper">
+                                    <label>荧光颜色 / Glow Color</label>
+                                    <toolcool-color-picker id="quote-glow-color" color="rgba(224, 159, 254, 0.8)"></toolcool-color-picker>
+                                </div>
+                                <div class="glow-intensity">
+                                    <label>荧光强度 / Intensity: <span class="intensity-value">5</span></label>
+                                    <input type="range" id="quote-glow-intensity" min="0" max="20" value="5">
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -110,17 +210,12 @@ class ChatStylist {
         document.body.appendChild(panel);
         this.panel = panel;
         this.initPanelEvents();
+        this.initStyleControls();
     }
 
     initPanelEvents() {
         const panel = this.panel;
         
-        // 关闭按钮
-        panel.querySelector('.btn-close').addEventListener('click', () => this.hidePanel());
-
-        // 最小化按钮
-        panel.querySelector('.btn-minimize').addEventListener('click', () => this.toggleMinimize());
-
         // 标签页切换
         panel.querySelectorAll('.tab-button').forEach(button => {
             button.addEventListener('click', () => {
@@ -130,6 +225,26 @@ class ChatStylist {
                 panel.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
                 panel.querySelector(`.tab-content[data-tab="${tabName}"]`).classList.add('active');
             });
+        });
+
+        // 控制按钮
+        panel.querySelector('.btn-close').addEventListener('click', () => this.hidePanel());
+        panel.querySelector('.btn-minimize').addEventListener('click', () => this.toggleMinimize());
+        panel.querySelector('.btn-save').addEventListener('click', () => this.saveStyles());
+        panel.querySelector('.btn-reset').addEventListener('click', () => this.resetStyles());
+
+        // 背景类型切换
+        panel.querySelector('#background-type').addEventListener('change', (e) => {
+            panel.querySelector('#solid-background').style.display = 
+                e.target.value === 'solid' ? 'block' : 'none';
+            panel.querySelector('#gradient-background').style.display = 
+                e.target.value !== 'solid' ? 'block' : 'none';
+        });
+
+        // 引用文本荧光效果切换
+        panel.querySelector('#quote-glow-enabled').addEventListener('change', (e) => {
+            panel.querySelector('#quote-glow-controls').style.display = 
+                e.target.checked ? 'block' : 'none';
         });
 
         this.initDragAndResize();
@@ -216,28 +331,68 @@ class ChatStylist {
         };
 
         // 添加事件监听器
-        // 鼠标事件
         header.addEventListener('mousedown', handleDragStart);
+        header.addEventListener('touchstart', handleDragStart, { passive: false });
+
         resizeHandle.addEventListener('mousedown', handleResizeStart);
+        resizeHandle.addEventListener('touchstart', handleResizeStart, { passive: false });
+
         document.addEventListener('mousemove', (e) => {
             handleDragMove(e);
             handleResizeMove(e);
         });
-        document.addEventListener('mouseup', () => {
-            handleDragEnd();
-            handleResizeEnd();
-        });
-
-        // 触摸事件
-        header.addEventListener('touchstart', handleDragStart, { passive: false });
-        resizeHandle.addEventListener('touchstart', handleResizeStart, { passive: false });
         document.addEventListener('touchmove', (e) => {
             handleDragMove(e);
             handleResizeMove(e);
         }, { passive: false });
+
+        document.addEventListener('mouseup', () => {
+            handleDragEnd();
+            handleResizeEnd();
+        });
         document.addEventListener('touchend', () => {
             handleDragEnd();
             handleResizeEnd();
+        });
+    }
+
+    initStyleControls() {
+        const panel = this.panel;
+
+        // 颜色选择器变化事件
+        panel.querySelectorAll('toolcool-color-picker').forEach(picker => {
+            picker.addEventListener('change', () => this.updateStyles());
+        });
+
+        // 数字输入框变化事件
+        panel.querySelectorAll('input[type="number"]').forEach(input => {
+            input.addEventListener('change', () => this.updateStyles());
+        });
+
+        // 范围滑块变化事件
+        panel.querySelectorAll('input[type="range"]').forEach(input => {
+            input.addEventListener('input', (e) => {
+                const valueDisplay = e.target.parentElement.querySelector('.intensity-value');
+                if (valueDisplay) {
+                    valueDisplay.textContent = e.target.value;
+                }
+                this.updateStyles();
+            });
+        });
+
+        // 添加渐变色停止点
+        panel.querySelector('.add-color-stop')?.addEventListener('click', () => {
+            const container = panel.querySelector('.color-stop-container');
+            const newStop = container.querySelector('.color-stop').cloneNode(true);
+            container.appendChild(newStop);
+            
+            // 重新初始化新添加的控件
+            const newPicker = newStop.querySelector('toolcool-color-picker');
+            newPicker.addEventListener('change', () => this.updateStyles());
+            
+            const newPosition = newStop.querySelector('.gradient-position');
+            newPosition.value = '100';
+            newPosition.addEventListener('change', () => this.updateStyles());
         });
     }
 
@@ -246,6 +401,17 @@ class ChatStylist {
             this.createEditorPanel();
         }
         this.panel.style.display = 'block';
+        
+        // 计算合适的初始位置
+        const rect = this.panel.getBoundingClientRect();
+        const initialTop = Math.max(60, (window.innerHeight - rect.height) / 2);
+        const initialLeft = Math.max(10, (window.innerWidth - rect.width) / 2);
+        
+        this.panel.style.top = `${initialTop}px`;
+        this.panel.style.left = `${initialLeft}px`;
+        
+        this.refreshCharacterList();
+        this.loadCurrentStyles();
     }
 
     hidePanel() {
@@ -257,15 +423,245 @@ class ChatStylist {
     toggleMinimize() {
         const content = this.panel.querySelector('.panel-content');
         const minimizeBtn = this.panel.querySelector('.btn-minimize i');
+        const panel = this.panel;
         
-        if (this.panel.classList.contains('minimized')) {
+        if (panel.classList.contains('minimized')) {
             content.style.display = 'block';
             minimizeBtn.className = 'fa-solid fa-minus';
-            this.panel.classList.remove('minimized');
+            panel.classList.remove('minimized');
+            if (panel.dataset.originalHeight) {
+                panel.style.height = panel.dataset.originalHeight;
+            }
         } else {
             content.style.display = 'none';
             minimizeBtn.className = 'fa-solid fa-plus';
-            this.panel.classList.add('minimized');
+            panel.classList.add('minimized');
+            panel.dataset.originalHeight = panel.style.height;
+            panel.style.height = 'auto';
+        }
+    }
+
+    refreshCharacterList() {
+        const select = this.panel.querySelector('#character-select');
+        select.innerHTML = '<option value="">选择角色...</option>';
+
+        // 获取聊天中的所有角色
+        const characters = new Set();
+        document.querySelectorAll('.mes').forEach(message => {
+            const name = message.querySelector('.name_text')?.textContent?.trim();
+            const isUser = message.getAttribute('is_user') === 'true';
+            
+            if (name && name !== '${characterName}') {
+                const charId = `${isUser ? 'user' : 'char'}_${name}`;
+                characters.add({ id: charId, name, isUser });
+            }
+        });
+
+        // 添加角色到选择框
+        [...characters].forEach(char => {
+            const option = document.createElement('option');
+            option.value = char.id;
+            option.textContent = `${char.name} (${char.isUser ? '用户' : 'AI'})`;
+            select.appendChild(option);
+        });
+
+        // 绑定选择事件
+        select.addEventListener('change', () => this.loadStyles(select.value));
+    }
+
+    getCurrentCharacterId() {
+        return this.panel.querySelector('#character-select').value;
+    }
+
+    getStylesForCharacter(charId) {
+        return this.settings.styles[charId] || structuredClone(this.settings.defaultStyle);
+    }
+
+    loadStyles(charId) {
+        const style = this.getStylesForCharacter(charId);
+        const panel = this.panel;
+
+        // 背景样式
+        panel.querySelector('#background-type').value = style.background.type;
+        panel.querySelector('#solid-background').style.display = 
+            style.background.type === 'solid' ? 'block' : 'none';
+        panel.querySelector('#gradient-background').style.display = 
+            style.background.type !== 'solid' ? 'block' : 'none';
+
+        if (style.background.type === 'solid') {
+            panel.querySelector('#background-color').setAttribute('color', style.background.color);
+        } else {
+            // 渐变色设置
+            const container = panel.querySelector('.color-stop-container');
+            container.innerHTML = '';
+            style.background.gradient.colors.forEach((color, index) => {
+                const stop = this.createColorStop(color, style.background.gradient.positions[index]);
+                container.appendChild(stop);
+            });
+            panel.querySelector('.gradient-angle-slider').value = style.background.gradient.angle;
+            panel.querySelector('.angle-value').textContent = `${style.background.gradient.angle}°`;
+        }
+
+        // 内边距
+        panel.querySelector('#padding-top').value = style.padding.top;
+        panel.querySelector('#padding-right').value = style.padding.right;
+        panel.querySelector('#padding-bottom').value = style.padding.bottom;
+        panel.querySelector('#padding-left').value = style.padding.left;
+
+        // 文本样式
+        panel.querySelector('#main-text-color').setAttribute('color', style.text.main);
+        panel.querySelector('#italics-text-color').setAttribute('color', style.text.italics);
+        panel.querySelector('#quote-text-color').setAttribute('color', style.text.quote.color);
+
+        // 引用文本荧光效果
+        const glowEnabled = panel.querySelector('#quote-glow-enabled');
+        glowEnabled.checked = style.text.quote.glow.enabled;
+        panel.querySelector('#quote-glow-controls').style.display = 
+            style.text.quote.glow.enabled ? 'block' : 'none';
+        panel.querySelector('#quote-glow-color').setAttribute('color', style.text.quote.glow.color);
+        panel.querySelector('#quote-glow-intensity').value = style.text.quote.glow.intensity;
+        panel.querySelector('.intensity-value').textContent = style.text.quote.glow.intensity;
+
+        this.updateStyles();
+    }
+
+    createColorStop(color, position) {
+        const stop = document.createElement('div');
+        stop.className = 'color-stop';
+        stop.innerHTML = `
+            <toolcool-color-picker class="gradient-color" color="${color}"></toolcool-color-picker>
+            <div class="gradient-position-control">
+                <label>位置 / Position (%)</label>
+                <input type="number" class="gradient-position" value="${position}" min="0" max="100">
+            </div>`;
+        
+        // 绑定事件
+        stop.querySelector('toolcool-color-picker').addEventListener('change', () => this.updateStyles());
+        stop.querySelector('.gradient-position').addEventListener('change', () => this.updateStyles());
+        
+        return stop;
+    }
+
+    getCurrentStyles() {
+        const panel = this.panel;
+        const backgroundType = panel.querySelector('#background-type').value;
+
+        const style = {
+            background: {
+                type: backgroundType,
+                color: panel.querySelector('#background-color').getAttribute('color'),
+                gradient: {
+                    colors: [],
+                    positions: [],
+                    angle: parseInt(panel.querySelector('.gradient-angle-slider').value)
+                }
+            },
+            text: {
+                main: panel.querySelector('#main-text-color').getAttribute('color'),
+                italics: panel.querySelector('#italics-text-color').getAttribute('color'),
+                quote: {
+                    color: panel.querySelector('#quote-text-color').getAttribute('color'),
+                    glow: {
+                        enabled: panel.querySelector('#quote-glow-enabled').checked,
+                        color: panel.querySelector('#quote-glow-color').getAttribute('color'),
+                        intensity: parseInt(panel.querySelector('#quote-glow-intensity').value)
+                    }
+                }
+            },
+            padding: {
+                top: parseInt(panel.querySelector('#padding-top').value),
+                right: parseInt(panel.querySelector('#padding-right').value),
+                bottom: parseInt(panel.querySelector('#padding-bottom').value),
+                left: parseInt(panel.querySelector('#padding-left').value)
+            }
+        };
+
+        if (backgroundType !== 'solid') {
+            panel.querySelectorAll('.color-stop').forEach(stop => {
+                style.background.gradient.colors.push(
+                    stop.querySelector('.gradient-color').getAttribute('color')
+                );
+                style.background.gradient.positions.push(
+                    parseInt(stop.querySelector('.gradient-position').value)
+                );
+            });
+        }
+
+        return style;
+    }
+
+    updateStyles() {
+        const charId = this.getCurrentCharacterId();
+        if (!charId) return;
+
+        const style = this.getCurrentStyles();
+        this.settings.styles[charId] = style;
+        this.applyStylesToMessages(charId, style);
+        saveSettingsDebounced();
+    }
+
+    applyStylesToMessages(charId, style) {
+        document.querySelectorAll('.mes').forEach(message => {
+            const name = message.querySelector('.name_text')?.textContent?.trim();
+            const isUser = message.getAttribute('is_user') === 'true';
+            const thisCharId = `${isUser ? 'user' : 'char'}_${name}`;
+            
+            if (thisCharId === charId) {
+                const mesBlock = message.querySelector('.mes_block');
+                const mesText = message.querySelector('.mes_text');
+                
+                // 应用背景样式
+                if (style.background.type === 'solid') {
+                    mesBlock.style.background = style.background.color;
+                } else {
+                    const gradType = style.background.type === 'linear' ? 'linear-gradient' : 'radial-gradient';
+                    const gradString = style.background.gradient.colors.map((color, i) => 
+                        `${color} ${style.background.gradient.positions[i]}%`).join(', ');
+                    const angle = style.background.type === 'linear' ? `${style.background.gradient.angle}deg, ` : '';
+                    mesBlock.style.background = `${gradType}(${angle}${gradString})`;
+                }
+
+                // 应用内边距
+                mesBlock.style.padding = 
+                    `${style.padding.top}px ${style.padding.right}px ${style.padding.bottom}px ${style.padding.left}px`;
+
+                // 应用文本样式
+                mesText.style.color = style.text.main;
+
+                // 斜体文本
+                mesText.querySelectorAll('em, i').forEach(el => {
+                    el.style.color = style.text.italics;
+                });
+
+                // 引用文本及其荧光效果
+                mesText.querySelectorAll('q').forEach(el => {
+                    el.style.color = style.text.quote.color;
+                    if (style.text.quote.glow.enabled) {
+                        el.style.textShadow = `0 0 ${style.text.quote.glow.intensity}px ${style.text.quote.glow.color}`;
+                    } else {
+                        el.style.textShadow = 'none';
+                    }
+                });
+            }
+        });
+    }
+
+    saveStyles() {
+        const charId = this.getCurrentCharacterId();
+        if (!charId) return;
+
+        this.updateStyles();
+        debug.log('Styles saved for:', charId);
+    }
+
+    resetStyles() {
+        const charId = this.getCurrentCharacterId();
+        if (!charId) return;
+
+        if (confirm('确定要重置当前角色的样式吗？')) {
+            delete this.settings.styles[charId];
+            this.loadStyles(charId);
+            debug.log('Styles reset for:', charId);
         }
     }
 }
