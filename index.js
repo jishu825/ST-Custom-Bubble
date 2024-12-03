@@ -1,8 +1,8 @@
+
 // 设置常量
 const MODULE_NAME = 'chat-stylist';
-const EXTENSION_READY_TIMEOUT = 30000; // 30秒超时
 
-// 引入 SillyTavern 的核心功能
+// 引入 SillyTavern 核心功能
 import { animation_duration, eventSource, event_types } from '../../../../script.js';
 
 // 检查核心依赖
@@ -75,6 +75,7 @@ class ChatStylist {
                 this.createEditorPanel();
                 this.initStyles();
                 this.addSettingsButton();
+                this.initEventListeners();
                 console.log('Chat Stylist initialized successfully');
             });
         } catch (error) {
@@ -139,13 +140,86 @@ class ChatStylist {
                     <option value="">选择角色...</option>
                 </select>
             </div>
-        </div>`;
+
+            <!-- Bubble Style Tab -->
+            <div class="tab-content active" data-tab="bubble">
+                <div class="control-group">
+                    <label>背景样式 / Background Style</label>
+                    <select id="background-type" class="form-control">
+                        <option value="solid">纯色 / Solid</option>
+                        <option value="linear">线性渐变 / Linear Gradient</option>
+                        <option value="radial">径向渐变 / Radial Gradient</option>
+                    </select>
+
+                    <div id="solid-background" class="background-settings">
+                        <div class="color-picker-wrapper">
+                            <toolcool-color-picker id="background-color" color="rgba(254, 222, 169, 0.5)"></toolcool-color-picker>
+                        </div>
+                    </div>
+
+                    <div id="gradient-background" class="background-settings" style="display: none;">
+                        <div class="color-stop-container">
+                            <div class="color-stop">
+                                <toolcool-color-picker class="gradient-color" color="rgba(254, 222, 169, 0.5)"></toolcool-color-picker>
+                                <div class="gradient-position-control">
+                                    <label>位置 / Position (%)</label>
+                                    <input type="number" class="gradient-position" value="0" min="0" max="100">
+                                </div>
+                            </div>
+                            <div class="color-stop">
+                                <toolcool-color-picker class="gradient-color" color="rgba(255, 255, 255, 0.5)"></toolcool-color-picker>
+                                <div class="gradient-position-control">
+                                    <label>位置 / Position (%)</label>
+                                    <input type="number" class="gradient-position" value="100" min="0" max="100">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="gradient-angle">
+                            <label>渐变角度 / Angle: <span class="angle-value">90°</span></label>
+                            <input type="range" class="gradient-angle-slider" min="0" max="360" value="90">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Text Style Tab -->
+            <div class="tab-content" data-tab="text">
+                <div class="control-group">
+                    <label>主要文本 / Main Text</label>
+                    <div class="color-picker-wrapper">
+                        <toolcool-color-picker id="main-text-color" color="rgba(208, 206, 196, 1)"></toolcool-color-picker>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>斜体文本 / Italic Text</label>
+                    <div class="color-picker-wrapper">
+                        <toolcool-color-picker id="italics-text-color" color="rgba(183, 160, 255, 1)"></toolcool-color-picker>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>引用文本 / Quote Text</label>
+                    <div class="color-picker-wrapper">
+                        <toolcool-color-picker id="quote-text-color" color="rgba(224, 159, 254, 1)"></toolcool-color-picker>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel-resize-handle"></div>`;
         document.body.appendChild(panel);
         this.panel = panel;
+
+        setTimeout(() => {
+            panel.querySelectorAll('toolcool-color-picker').forEach(picker => {
+                if (!picker.initialized) {
+                    picker.setAttribute('color', picker.getAttribute('color'));
+                }
+            });
+        }, 100);
     }
 
     addSettingsButton() {
-        // 添加扩展按钮到设置面板
         const extensionHtml = `
             <div id="chat-stylist-settings" class="extension-settings">
                 <div class="inline-drawer">
@@ -167,10 +241,6 @@ class ChatStylist {
         $('#extensions_settings2').append(extensionHtml);
 
         $('#chat-stylist-button').on('click', () => {
-            if (!this.panel) {
-                this.createEditorPanel();
-                this.initEventListeners();
-            }
             this.showPanel();
         });
     }
@@ -184,7 +254,7 @@ class ChatStylist {
     }
 }
 
-// 创建并注册扩展
+// 注册扩展
 const chatStylist = new ChatStylist();
 window.extensions = window.extensions || {};
 window.extensions[MODULE_NAME] = chatStylist;
