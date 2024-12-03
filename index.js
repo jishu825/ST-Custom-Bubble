@@ -248,43 +248,100 @@ class ChatStylist {
         }
     }
 
-    addExtensionButton() {
-        const extensionHtml = `
-            <div id="chat-stylist-settings" class="extension-settings">
-                <div class="inline-drawer">
-                    <div class="inline-drawer-toggle inline-drawer-header">
-                        <b class="inline-drawer-title">聊天气泡样式编辑器</b>
-                        <div class="inline-drawer-icon fa-solid fa-circle-chevron-down"></div>
-                    </div>
-                    <div class="inline-drawer-content">
-                        <div class="chat-stylist-control">
-                            <div id="chat-stylist-button" class="menu_button">
-                                <i class="fa-solid fa-palette"></i>
-                                <span class="button-label">打开样式编辑器</span>
-                            </div>
+    // 修改 ChatStylist 类中的 addExtensionButton 方法
+addExtensionButton() {
+    // 确保目标容器存在
+    const extensionsContainer = document.getElementById('extensions_settings2');
+    if (!extensionsContainer) {
+        console.error('Extensions container not found');
+        return;
+    }
+
+    // 创建扩展设置容器
+    const settingsHtml = `
+        <div id="chat-stylist-settings" class="chat-stylist-settings">
+            <div class="inline-drawer">
+                <div class="inline-drawer-toggle inline-drawer-header">
+                    <b class="inline-drawer-title">聊天气泡样式编辑器</b>
+                    <div class="inline-drawer-icon fa-solid fa-circle-chevron-down"></div>
+                </div>
+                <div class="inline-drawer-content">
+                    <div class="chat-stylist-control">
+                        <div id="chat-stylist-button" class="menu_button">
+                            <i class="fa-solid fa-palette"></i>
+                            <span class="button-label">打开样式编辑器</span>
                         </div>
                     </div>
                 </div>
-            </div>`;
+            </div>
+        </div>`;
 
-        $('#extensions_settings2').append(extensionHtml);
+    // 添加到扩展设置面板
+    extensionsContainer.insertAdjacentHTML('beforeend', settingsHtml);
 
-        $('#chat-stylist-button').on('click', () => {
+    // 绑定点击事件
+    const button = document.getElementById('chat-stylist-button');
+    if (button) {
+        button.addEventListener('click', () => {
             this.panelManager.showPanel();
         });
     }
 }
 
-// Create and initialize extension
-const chatStylist = new ChatStylist();
-window.extensions = window.extensions || {};
-window.extensions[MODULE_NAME] = chatStylist;
-
-// Initialize when document is ready
-jQuery(async () => {
+// 修改初始化方法
+async init() {
     try {
         console.log('Starting Chat Stylist initialization...');
+        
+        // 等待扩展设置面板就绪
+        await this.waitForExtensionSettings();
+        
+        // 添加扩展按钮
+        this.addExtensionButton();
+        
+        // 初始化其他功能
+        this.eventHandler.setupEventListeners();
+        
+        console.log('Chat Stylist initialized successfully');
+    } catch (error) {
+        console.error('Failed to initialize Chat Stylist:', error);
+    }
+}
+
+// 修改等待方法
+async waitForExtensionSettings() {
+    const startTime = Date.now();
+    
+    while (!document.getElementById('extensions_settings2')) {
+        if (Date.now() - startTime > EXTENSION_READY_TIMEOUT) {
+            throw new Error('Extension settings panel not found after timeout');
+        }
+        await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    
+    // 确保 DOM 完全加载
+    await new Promise(resolve => {
+        if (document.readyState === 'complete') {
+            resolve();
+        } else {
+            window.addEventListener('load', resolve);
+        }
+    });
+}
+
+// 修改 jQuery 初始化部分
+jQuery(async () => {
+    try {
+        console.log('Initializing Chat Stylist...');
+        const chatStylist = new ChatStylist();
+        
+        // 将实例存储在全局扩展对象中
+        window.extensions = window.extensions || {};
+        window.extensions[MODULE_NAME] = chatStylist;
+        
+        // 初始化扩展
         await chatStylist.init();
+        
     } catch (error) {
         console.error('Failed to initialize Chat Stylist:', error);
     }
