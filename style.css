@@ -1,20 +1,23 @@
-/* 编辑器按钮样式 */
+/* 编辑器按钮样式优化 */
 #chat-stylist-button {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 8px 16px;
+    gap: 8px;
+    padding: 4px 12px;  /* 减小上下内边距 */
+    height: 28px;      /* 固定高度 */
+    margin: 5px 0;     /* 适当的外边距 */
 }
 
 #chat-stylist-button i {
-    font-size: 1.2em;
+    font-size: 1em;    /* 稍微缩小图标 */
 }
 
 .chat-stylist-label {
-    font-size: 0.9em;
+    font-size: 0.9em;  /* 稍微缩小文字 */
+    white-space: nowrap; /* 防止文字换行 */
 }
 
-/* 抽屉内容样式微调 */
+/* 调整抽屉内容区域的内边距 */
 .inline-drawer-content {
-    padding: 10px;
+    padding: 5px 10px;
 }
