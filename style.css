@@ -17,7 +17,7 @@
     white-space: nowrap;
 }
 
-/* 编辑器面板样式 */
+/* 编辑器面板基础样式 */
 .chat-stylist-panel {
     position: fixed;
     top: 50px;
@@ -118,6 +118,80 @@
     color: var(--SmartThemeBodyColor);
 }
 
+/* 背景设置 */
+.background-settings {
+    margin-top: 10px;
+}
+
+/* 渐变控制 */
+.color-stop-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.color-stop {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.gradient-position-control {
+    width: 100px;
+}
+
+.gradient-position-control label {
+    font-size: 0.8em;
+    margin-bottom: 4px;
+}
+
+.add-color-stop {
+    width: 100%;
+    padding: 8px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid var(--SmartThemeBorderColor);
+    border-radius: 4px;
+    color: var(--SmartThemeBodyColor);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.add-color-stop:hover {
+    background: rgba(255,255,255,0.15);
+}
+
+.gradient-angle {
+    margin-top: 15px;
+}
+
+/* 内边距控制 */
+.padding-controls {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.padding-input {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.padding-input label {
+    font-size: 0.8em;
+    margin-bottom: 2px;
+}
+
+.padding-input input {
+    width: 100%;
+    padding: 4px 8px;
+    background: rgba(0,0,0,0.2);
+    border: 1px solid var(--SmartThemeBorderColor);
+    border-radius: 4px;
+    color: var(--SmartThemeBodyColor);
+}
+
 /* 取色器样式 */
 .color-picker-wrapper {
     margin-top: 10px;
@@ -134,14 +208,55 @@ toolcool-color-picker {
     --tc-background-color: var(--SmartThemeBlurTintColor);
 }
 
-/* 选择框样式 */
-select.form-control {
-    width: 100%;
-    padding: 8px;
-    background: rgba(0,0,0,0.2);
-    border: 1px solid var(--SmartThemeBorderColor);
+/* 引用文本荧光效果控制 */
+.quote-glow-settings {
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+#quote-glow-controls {
+    margin-top: 10px;
+    padding: 10px;
+    background: rgba(0,0,0,0.1);
     border-radius: 4px;
-    color: var(--SmartThemeBodyColor);
+}
+
+.glow-intensity {
+    margin-top: 10px;
+}
+
+.glow-intensity label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* 滑块样式 */
+input[type="range"] {
+    width: 100%;
+    height: 4px;
+    appearance: none;
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+    outline: none;
+    margin: 10px 0;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    background: var(--SmartThemeBodyColor);
+    border-radius: 50%;
+    cursor: pointer;
 }
 
 /* 标签页内容 */
@@ -165,7 +280,7 @@ select.form-control {
     border-radius: 0 0 10px 0;
 }
 
-/* 拖动和调整大小时的视觉反馈 */
+/* 拖动和调整大小状态 */
 .chat-stylist-panel.dragging,
 .chat-stylist-panel.resizing {
     opacity: 0.8;
@@ -181,22 +296,20 @@ select.form-control {
     display: none;
 }
 
-/* 滚动条样式 */
-.panel-content::-webkit-scrollbar {
-    width: 8px;
-}
-
-.panel-content::-webkit-scrollbar-track {
-    background: rgba(0,0,0,0.1);
-}
-
-.panel-content::-webkit-scrollbar-thumb {
-    background: rgba(255,255,255,0.2);
+/* 下拉选择框样式 */
+select.form-control {
+    width: 100%;
+    padding: 8px;
+    background: rgba(0,0,0,0.2);
+    border: 1px solid var(--SmartThemeBorderColor);
     border-radius: 4px;
+    color: var(--SmartThemeBodyColor);
+    cursor: pointer;
 }
 
-.panel-content::-webkit-scrollbar-thumb:hover {
-    background: rgba(255,255,255,0.3);
+/* 取色器弹出层 */
+.tc-popup-container {
+    z-index: 10001 !important;
 }
 
 /* 移动设备适配 */
@@ -209,9 +322,8 @@ select.form-control {
         max-width: 320px;
         max-height: 80vh;
     }
-}
 
-/* 取色器弹出层样式 */
-.tc-popup-container {
-    z-index: 10001 !important;
+    .padding-controls {
+        grid-template-columns: 1fr;
+    }
 }
