@@ -29,6 +29,7 @@ if (!window.extension_settings) {
 // 初始化模块设置
 if (!window.extension_settings[MODULE_NAME]) {
     window.extension_settings[MODULE_NAME] = {
+        enabled: false,
         styles: {},
         defaultStyle: {
             background: {
@@ -123,6 +124,7 @@ addExtensionControls() {
     try {
         await this.waitForExtensionSettings();
         console.log('Extension settings ready');
+        this.addExtensionControls();
         this.initStyles();
         console.log('Chat Stylist initialized successfully');
     } catch (error) {
@@ -130,15 +132,15 @@ addExtensionControls() {
     }
 }
     
-    async waitForExtensionSettings() {
-        const startTime = Date.now();
-        while (!document.getElementById('extensions_settings2')) {
-            if (Date.now() - startTime > EXTENSION_READY_TIMEOUT) {
-                throw new Error('Extension settings panel not found after timeout');
-            }
-            await new Promise(resolve => setTimeout(resolve, 100));
+   async waitForExtensionSettings() {
+    const startTime = Date.now();
+    while (!document.getElementById('extensions_settings')) { // 改为 extensions_settings
+        if (Date.now() - startTime > EXTENSION_READY_TIMEOUT) {
+            throw new Error('Extension settings panel not found after timeout');
         }
+        await new Promise(resolve => setTimeout(resolve, 100));
     }
+}
 
     initStyles() {
         const styleSheet = document.createElement('style');
@@ -719,6 +721,9 @@ jQuery(async () => {
     try {
         console.log('Starting Chat Stylist initialization...');
         await chatStylist.init();
+        eventSource.on(event_types.APP_READY, () => {
+            extension_settings[MODULE_NAME].enabled && chatStylist.addExtensionControls();
+        });
         console.log('Chat Stylist initialized successfully');
     } catch (error) {
         console.error('Failed to initialize Chat Stylist:', error);
