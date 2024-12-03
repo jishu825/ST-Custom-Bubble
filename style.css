@@ -89,86 +89,46 @@
 @media (max-width: 768px) {
     .style-editor-panel {
         position: fixed;
-        top: 50% !important;
-        left: 50% !important;
+        top: 50%;
+        left: 50%;
         transform: translate(-50%, -50%);
-        width: 90% !important;
+        width: 90%;
         max-width: 320px;
-        height: auto !important;
+        height: auto;
         max-height: 80vh;
         border-radius: 10px;
     }
 
     .panel-header {
         touch-action: none;
+        cursor: grab; /* 更加直观的拖拽手势 */
+    }
+
+    .style-editor-panel.dragging {
+        opacity: 0.9;
+        transition: none;
     }
 
     .panel-resize-handle {
-        display: block;
-        width: 24px;
-        height: 24px;
+        width: 20px;
+        height: 20px;
     }
-
-    .header-controls button {
-        padding: 8px;
-        margin: 0 2px;
-    }
-}
-
-.style-editor-panel {
-    transition: all 0.3s ease;
 }
 
 .style-editor-panel.minimized {
-    height: auto !important;
+    height: 40px !important;
     resize: none;
+    overflow: hidden;
 }
 
 .style-editor-panel.minimized .panel-resize-handle {
     display: none;
 }
 
-.style-editor-panel.dragging {
-    transition: none;
-    opacity: 0.9;
-}
-
+.style-editor-panel.dragging,
 .style-editor-panel.resizing {
     transition: none;
-}
-
-.style-editor-panel {
-    position: fixed;
-    top: 50px;
-    right: 20px;
-    width: 320px;
-    min-width: 320px;
-    min-height: 200px;
-    background: #2d2d2d;
-    border: 1px solid #444;
-    border-radius: 10px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.5);
-    z-index: 10000;
-    resize: both;
-    overflow: hidden;
-    font-family: Arial, sans-serif;
-    color: #fff;
-    transform: translate3d(0, 0, 0); /* Enable hardware acceleration */
-}
-
-.panel-header {
-    cursor: move; /* Shows move cursor on the header */
-}
-
-.panel-resize-handle {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    width: 15px;
-    height: 15px;
-    cursor: se-resize;
-    background: linear-gradient(135deg, transparent 50%, #666 50%);
-    z-index: 1;
+    opacity: 0.9;
 }
 
 .header-controls button {
@@ -192,8 +152,6 @@
     overflow-y: auto;
 }
 
-
-
 .control-group:last-child {
     margin-bottom: 0;
 }
@@ -214,7 +172,6 @@ select.form-control {
     color: #fff;
     font-size: 13px;
 }
-
 
 .gradient-controls {
     margin-top: 10px;
