@@ -1,25 +1,20 @@
-/* 编辑器按钮样式优化 */
+/* 扩展按钮样式 */
 #chat-stylist-button {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 4px 12px;  /* 减小上下内边距 */
-    height: 28px;      /* 固定高度 */
-    margin: 5px 0;     /* 适当的外边距 */
+    padding: 4px 12px;
+    height: 28px;
+    margin: 5px 0;
 }
 
 #chat-stylist-button i {
-    font-size: 1em;    /* 稍微缩小图标 */
+    font-size: 1em;
 }
 
 .chat-stylist-label {
-    font-size: 0.9em;  /* 稍微缩小文字 */
-    white-space: nowrap; /* 防止文字换行 */
-}
-
-/* 调整抽屉内容区域的内边距 */
-.inline-drawer-content {
-    padding: 5px 10px;
+    font-size: 0.9em;
+    white-space: nowrap;
 }
 
 /* 编辑器面板样式 */
@@ -27,7 +22,9 @@
     position: fixed;
     top: 50px;
     right: 20px;
-    width: 300px;
+    min-width: 300px;
+    min-height: 200px;
+    width: 320px;
     background: var(--SmartThemeBlurTintColor);
     backdrop-filter: blur(var(--SmartThemeBlurStrength));
     border: 1px solid var(--SmartThemeBorderColor);
@@ -37,78 +34,184 @@
 }
 
 /* 面板头部 */
-.chat-stylist-panel .panel-header {
+.panel-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 8px 12px;
     border-bottom: 1px solid var(--SmartThemeBorderColor);
     cursor: move;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* 标签栏 */
+.header-tabs {
+    display: flex;
+    gap: 10px;
+    flex: 1;
+    justify-content: center;
+}
+
+.tab-button {
+    background: none;
+    border: none;
+    color: var(--SmartThemeBodyColor);
+    padding: 4px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: all 0.2s;
+}
+
+.tab-button:hover {
+    opacity: 1;
+    background: rgba(255,255,255,0.1);
+}
+
+.tab-button.active {
+    opacity: 1;
+    background: rgba(255,255,255,0.15);
 }
 
 /* 控制按钮 */
-.chat-stylist-panel .panel-controls {
+.panel-controls {
     display: flex;
     gap: 8px;
 }
 
-.chat-stylist-panel .panel-controls button {
+.panel-controls button {
     background: none;
     border: none;
     color: var(--SmartThemeBodyColor);
     cursor: pointer;
     padding: 4px;
     border-radius: 4px;
+    opacity: 0.7;
+    transition: all 0.2s;
 }
 
-.chat-stylist-panel .panel-controls button:hover {
-    background: var(--SmartThemeBlurTintColor);
+.panel-controls button:hover {
+    opacity: 1;
+    background: rgba(255,255,255,0.1);
 }
 
-/* 面板内容区域 */
-.chat-stylist-panel .panel-content {
+/* 面板内容 */
+.panel-content {
     padding: 15px;
+    height: calc(100% - 45px);
+    overflow-y: auto;
 }
 
-/* 样式部分 */
-.chat-stylist-panel .style-section {
+/* 控件组 */
+.control-group {
     margin-bottom: 15px;
+    padding: 10px;
+    background: rgba(0,0,0,0.1);
+    border-radius: 6px;
 }
 
-.chat-stylist-panel .style-section label {
+.control-group label {
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
     font-size: 0.9em;
-}
-
-.chat-stylist-panel .section-row {
-    margin-bottom: 10px;
-}
-
-/* 输入控件样式 */
-.chat-stylist-panel select,
-.chat-stylist-panel input[type="color"] {
-    width: 100%;
-    padding: 4px;
-    border: 1px solid var(--SmartThemeBorderColor);
-    border-radius: 4px;
-    background: var(--SmartThemeBlurTintColor);
     color: var(--SmartThemeBodyColor);
 }
 
-.chat-stylist-panel input[type="range"] {
+/* 取色器样式 */
+.color-picker-wrapper {
+    margin-top: 10px;
+    padding: 5px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 4px;
+}
+
+toolcool-color-picker {
     width: 100%;
-    margin: 8px 0;
+    --tc-panel-width: 280px;
+    --tc-border-radius: 6px;
+    --tc-border-color: var(--SmartThemeBorderColor);
+    --tc-background-color: var(--SmartThemeBlurTintColor);
+}
+
+/* 选择框样式 */
+select.form-control {
+    width: 100%;
+    padding: 8px;
+    background: rgba(0,0,0,0.2);
+    border: 1px solid var(--SmartThemeBorderColor);
+    border-radius: 4px;
+    color: var(--SmartThemeBodyColor);
+}
+
+/* 标签页内容 */
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* 调整大小手柄 */
+.panel-resize-handle {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 15px;
+    height: 15px;
+    cursor: se-resize;
+    background: linear-gradient(135deg, transparent 50%, var(--SmartThemeBorderColor) 50%);
+    border-radius: 0 0 10px 0;
+}
+
+/* 拖动和调整大小时的视觉反馈 */
+.chat-stylist-panel.dragging,
+.chat-stylist-panel.resizing {
+    opacity: 0.8;
+    transition: none;
 }
 
 /* 最小化状态 */
 .chat-stylist-panel.minimized {
-    height: auto;
+    height: auto !important;
 }
 
-/* 透明度值显示 */
-.chat-stylist-panel .opacity-value {
-    font-size: 0.8em;
-    color: var(--SmartThemeBodyColor);
-    margin-left: 5px;
+.chat-stylist-panel.minimized .panel-resize-handle {
+    display: none;
+}
+
+/* 滚动条样式 */
+.panel-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.panel-content::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0.1);
+}
+
+.panel-content::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.2);
+    border-radius: 4px;
+}
+
+.panel-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+/* 移动设备适配 */
+@media (max-width: 768px) {
+    .chat-stylist-panel {
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 90%;
+        max-width: 320px;
+        max-height: 80vh;
+    }
+}
+
+/* 取色器弹出层样式 */
+.tc-popup-container {
+    z-index: 10001 !important;
 }
