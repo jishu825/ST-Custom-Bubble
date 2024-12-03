@@ -1,69 +1,6 @@
-/* Extension Settings Styles */
-.chat-stylist-settings {
-    margin: 10px 0;
-}
+/* Add or update in style.css */
 
-.chat-stylist-control {
-    padding: 10px;
-}
-
-#chat-stylist-button {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    background: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background 0.2s;
-    width: 100%;
-}
-
-#chat-stylist-button:hover {
-    background: #45a049;
-}
-
-#chat-stylist-button i {
-    font-size: 16px;
-}
-
-.button-label {
-    flex: 1;
-    text-align: left;
-}
-
-/* Base Panel Styles */
-.style-editor-panel {
-    position: fixed;
-    top: 50px;
-    right: 20px;
-    width: 320px;
-    min-width: 320px;
-    min-height: 200px;
-    background: #2d2d2d;
-    border: 1px solid #444;
-    border-radius: 10px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.5);
-    z-index: 10000;
-    resize: both;
-    overflow: hidden;
-    font-family: Arial, sans-serif;
-    color: #fff;
-}
-
-/* Panel Header */
-.panel-header {
-    display: flex;
-    align-items: center;
-    padding: 12px 15px;
-    background: #1d1d1d;
-    border-bottom: 1px solid #444;
-    border-radius: 10px 10px 0 0;
-    user-select: none;
-}
-
+/* Tab Styling */
 .header-tabs {
     display: flex;
     gap: 10px;
@@ -72,12 +9,6 @@
     justify-content: center;
 }
 
-.header-controls {
-    display: flex;
-    gap: 8px;
-}
-
-/* Tab Styling */
 .tab-button {
     background: none;
     border: none;
@@ -101,19 +32,124 @@
 
 .tab-content {
     display: none;
-    padding: 15px;
 }
 
 .tab-content.active {
     display: block;
 }
 
-/* Control Groups */
+/* Control Group Styling */
 .control-group {
     margin-bottom: 20px;
     padding: 10px;
     background: rgba(0,0,0,0.1);
     border-radius: 6px;
+}
+
+/* Color Picker Styling */
+.color-picker-wrapper {
+    margin-top: 10px;
+    padding: 5px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 4px;
+}
+
+/* Panel Header Layout */
+.panel-header {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+}
+
+.header-title {
+    width: 150px;
+}
+
+.header-controls {
+    display: flex;
+    gap: 8px;
+}
+
+/* Action Buttons */
+.header-controls button {
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.header-controls button:hover {
+    color: #fff;
+    background: rgba(255,255,255,0.1);
+}
+
+@media (max-width: 768px) {
+    .style-editor-panel {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 90%;
+        max-width: 320px;
+        height: auto;
+        max-height: 80vh;
+        border-radius: 10px;
+    }
+
+    .panel-header {
+        touch-action: none;
+        cursor: grab; /* 更加直观的拖拽手势 */
+    }
+
+    .style-editor-panel.dragging {
+        opacity: 0.9;
+        transition: none;
+    }
+
+    .panel-resize-handle {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+.style-editor-panel.minimized {
+    height: 40px !important;
+    resize: none;
+    overflow: hidden;
+}
+
+.style-editor-panel.minimized .panel-resize-handle {
+    display: none;
+}
+
+.style-editor-panel.dragging,
+.style-editor-panel.resizing {
+    transition: none;
+    opacity: 0.9;
+}
+
+.header-controls button {
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.header-controls button:hover {
+    color: #fff;
+    background: rgba(255,255,255,0.1);
+}
+
+.panel-content {
+    padding: 15px;
+    height: calc(100% - 50px);
+    overflow-y: auto;
 }
 
 .control-group:last-child {
@@ -127,7 +163,6 @@
     color: #ccc;
 }
 
-/* Form Controls */
 select.form-control {
     width: 100%;
     padding: 8px 12px;
@@ -136,18 +171,8 @@ select.form-control {
     border-radius: 6px;
     color: #fff;
     font-size: 13px;
-    margin-bottom: 10px;
 }
 
-/* Color Picker Container */
-.color-picker-wrapper {
-    margin-top: 10px;
-    padding: 5px;
-    background: rgba(0,0,0,0.2);
-    border-radius: 4px;
-}
-
-/* Gradient Controls */
 .gradient-controls {
     margin-top: 10px;
     padding: 10px;
@@ -168,6 +193,7 @@ select.form-control {
     gap: 10px;
 }
 
+/* Add to style.css */
 .gradient-position-control {
     display: flex;
     flex-direction: column;
@@ -188,11 +214,25 @@ select.form-control {
     color: #fff;
 }
 
+.add-color-stop {
+    width: 100%;
+    padding: 8px;
+    background: #3d3d3d;
+    border: 1px solid #555;
+    border-radius: 4px;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.add-color-stop:hover {
+    background: #4d4d4d;
+}
+
 .gradient-angle {
     margin-top: 10px;
 }
 
-/* Padding Controls */
 .padding-controls {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -215,23 +255,6 @@ select.form-control {
     color: #fff;
 }
 
-/* Panel Controls */
-.header-controls button {
-    background: none;
-    border: none;
-    color: #999;
-    cursor: pointer;
-    padding: 4px;
-    border-radius: 4px;
-    transition: all 0.2s ease;
-}
-
-.header-controls button:hover {
-    color: #fff;
-    background: rgba(255,255,255,0.1);
-}
-
-/* Resize Handle */
 .panel-resize-handle {
     position: absolute;
     right: 0;
@@ -243,7 +266,6 @@ select.form-control {
     border-radius: 0 0 10px 0;
 }
 
-/* Quote Glow Controls */
 #quote-glow-controls {
     margin-top: 10px;
     padding: 10px;
@@ -255,29 +277,9 @@ select.form-control {
     margin-top: 10px;
 }
 
-/* Range Input Styling */
 input[type="range"] {
     width: 100%;
     margin: 8px 0;
-    -webkit-appearance: none;
-    background: transparent;
-}
-
-input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    height: 16px;
-    width: 16px;
-    border-radius: 50%;
-    background: #fff;
-    cursor: pointer;
-    margin-top: -6px;
-}
-
-input[type="range"]::-webkit-slider-runnable-track {
-    width: 100%;
-    height: 4px;
-    background: #555;
-    border-radius: 2px;
 }
 
 /* Scrollbar Styling */
@@ -305,74 +307,15 @@ toolcool-color-picker {
     --tc-border-color: #555;
     --tc-background-color: #3d3d3d;
     width: 100%;
+}
+
+/* Add proper z-index for color pickers */
+toolcool-color-picker {
     position: relative;
     z-index: 10001;
 }
 
+/* Improve visibility of color picker popups */
 .tc-popup-container {
     z-index: 10002 !important;
 }
-
-/* Extension Button Styles */
-.chat-stylist-control {
-    margin: 10px 0;
-}
-
-#chat-stylist-button {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    background: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-#chat-stylist-button:hover {
-    background: #45a049;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .style-editor-panel {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 90%;
-        max-width: 320px;
-        height: auto;
-        max-height: 80vh;
-    }
-
-    .panel-header {
-        touch-action: none;
-        cursor: grab;
-    }
-
-    .panel-content {
-        max-height: calc(80vh - 50px);
-        overflow-y: auto;
-    }
-}
-
-/* Panel States */
-.style-editor-panel.minimized {
-    height: 40px !important;
-    resize: none;
-    overflow: hidden;
-}
-
-.style-editor-panel.minimized .panel-resize-handle {
-    display: none;
-}
-
-.style-editor-panel.dragging,
-.style-editor-panel.resizing {
-    transition: none;
-    opacity: 0.9;
-}
-
