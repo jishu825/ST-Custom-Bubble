@@ -1,3 +1,6 @@
+// 在 index.js 开头添加
+import 'toolcool-color-picker';
+
 // Check if toolcool-color-picker is defined
 if (!customElements.get('toolcool-color-picker')) {
     console.error('toolcool-color-picker component is not loaded. Please ensure the component is properly included.');
