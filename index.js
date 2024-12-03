@@ -10,7 +10,8 @@ import { extension_settings } from '../../../extensions.js';
 //#endregion ST imports
 
 // 设置常量
-const MODULE_NAME = 'chat-stylist';
+const EXTENSION_NAME = 'st-chat-stylist';
+const MODULE_NAME = 'Chat Stylist';
 const EXTENSION_READY_TIMEOUT = 30000; // 30秒超时
 
 // 检查核心依赖
@@ -27,8 +28,8 @@ if (!window.extension_settings) {
 }
 
 // 初始化模块设置
-if (!window.extension_settings[MODULE_NAME]) {
-    window.extension_settings[MODULE_NAME] = {
+if (!extension_settings[EXTENSION_NAME]) {
+    extension_settings[EXTENSION_NAME] = {
         enabled: false,
         styles: {},
         defaultStyle: {
@@ -65,7 +66,7 @@ if (!window.extension_settings[MODULE_NAME]) {
 
 class ChatStylist {
     constructor() {
-    this.settings = window.extension_settings[MODULE_NAME];
+    this.settings = extension_settings[EXTENSION_NAME];
     this.currentCharacter = null;
     this.panel = null;
     this.isDragging = false;
@@ -84,7 +85,7 @@ addExtensionControls() {
         <div id="chat-stylist-settings" class="extension-settings">
             <div class="inline-drawer">
                 <div class="inline-drawer-toggle inline-drawer-header">
-                    <b>Chat Stylist</b>
+                    <b>${MODULE_NAME}</b>
                     <div class="inline-drawer-icon fa-solid fa-circle-chevron-down"></div>
                 </div>
                 <div class="inline-drawer-content">
@@ -102,7 +103,7 @@ addExtensionControls() {
             </div>
         </div>`;
 
-    $('#extensions_settings').append(settingsHtml);
+    $('#extensions_settings2').append(settingsHtml);
 
     // 添加开关事件监听
     $('#chat-stylist-enabled').on('input', () => {
@@ -713,19 +714,20 @@ saveSettings() {
 
 // 创建并注册扩展
 const chatStylist = new ChatStylist();
-window.extensions = window.extensions || {};
-window.extensions[MODULE_NAME] = chatStylist;
 
 // 在文档加载完成后初始化
 jQuery(async () => {
     try {
-        console.log('Starting Chat Stylist initialization...');
+        console.log(`[${MODULE_NAME}] Starting initialization...`);
         await chatStylist.init();
+        
         eventSource.on(event_types.APP_READY, () => {
-            extension_settings[MODULE_NAME].enabled && chatStylist.addExtensionControls();
+            console.log(`[${MODULE_NAME}] Adding extension controls...`);
+            chatStylist.addExtensionControls();
         });
-        console.log('Chat Stylist initialized successfully');
+        
+        console.log(`[${MODULE_NAME}] Initialization complete`);
     } catch (error) {
-        console.error('Failed to initialize Chat Stylist:', error);
+        console.error(`[${MODULE_NAME}] Failed to initialize:`, error);
     }
 });
