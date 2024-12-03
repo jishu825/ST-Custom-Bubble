@@ -424,7 +424,7 @@ class ChatStylist {
         const content = this.panel.querySelector('.panel-content');
         const minimizeBtn = this.panel.querySelector('.btn-minimize i');
         const panel = this.panel;
-        
+
         if (panel.classList.contains('minimized')) {
             content.style.display = 'block';
             minimizeBtn.className = 'fa-solid fa-minus';
@@ -437,7 +437,8 @@ class ChatStylist {
             minimizeBtn.className = 'fa-solid fa-plus';
             panel.classList.add('minimized');
             panel.dataset.originalHeight = panel.style.height;
-            panel.style.height = 'auto';
+            // 直接设置最小化时的高度为header的高度
+            panel.style.height = panel.querySelector('.panel-header').offsetHeight + 'px';
         }
     }
 
@@ -445,20 +446,23 @@ class ChatStylist {
         const select = this.panel.querySelector('#character-select');
         select.innerHTML = '<option value="">选择角色...</option>';
 
-        // 获取聊天中的所有角色
-        const characters = new Set();
+        // 使用Map来存储角色，确保唯一性
+        const characters = new Map();
         document.querySelectorAll('.mes').forEach(message => {
             const name = message.querySelector('.name_text')?.textContent?.trim();
             const isUser = message.getAttribute('is_user') === 'true';
-            
+
             if (name && name !== '${characterName}') {
                 const charId = `${isUser ? 'user' : 'char'}_${name}`;
-                characters.add({ id: charId, name, isUser });
+                // 只有当Map中不存在该角色时才添加
+                if (!characters.has(charId)) {
+                    characters.set(charId, { id: charId, name, isUser });
+                }
             }
         });
 
-        // 添加角色到选择框
-        [...characters].forEach(char => {
+        // 将Map转换为数组并添加到选择框
+        [...characters.values()].forEach(char => {
             const option = document.createElement('option');
             option.value = char.id;
             option.textContent = `${char.name} (${char.isUser ? '用户' : 'AI'})`;
@@ -466,7 +470,10 @@ class ChatStylist {
         });
 
         // 绑定选择事件
-        select.addEventListener('change', () => this.loadStyles(select.value));
+        if (!select.hasEventListener) {
+            select.addEventListener('change', () => this.loadStyles(select.value));
+            select.hasEventListener = true; // 标记已添加事件监听器
+        }
     }
 
     getCurrentCharacterId() {
