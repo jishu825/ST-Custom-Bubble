@@ -1,5 +1,23 @@
-/* Add or update in style.css */
+/* 编辑器按钮样式 */
+#chat-stylist-button {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+}
 
+#chat-stylist-button i {
+    font-size: 1.2em;
+}
+
+.chat-stylist-label {
+    font-size: 0.9em;
+}
+
+/* 抽屉内容样式微调 */
+.inline-drawer-content {
+    padding: 10px;
+}
 /* Tab Styling */
 .header-tabs {
     display: flex;
