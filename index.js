@@ -517,6 +517,128 @@ startDragging(e) {
         this.isResizing = false;
     }
 
+onCharacterSelect() {
+    const select = this.panel.querySelector('#character-select');
+    this.currentCharacter = select.value;
+    
+    if (this.currentCharacter) {
+        this.loadCharacterStyle();
+    }
+}
+
+onBackgroundTypeChange() {
+    const type = this.panel.querySelector('#background-type').value;
+    const solidBg = this.panel.querySelector('#solid-background');
+    const gradientBg = this.panel.querySelector('#gradient-background');
+
+    solidBg.style.display = type === 'solid' ? 'block' : 'none';
+    gradientBg.style.display = type === 'solid' ? 'none' : 'block';
+
+    this.applyStyles();
+}
+
+toggleQuoteGlow() {
+    const glowEnabled = this.panel.querySelector('#quote-glow-enabled').checked;
+    const glowControls = this.panel.querySelector('#quote-glow-controls');
+    glowControls.style.display = glowEnabled ? 'block' : 'none';
+    this.applyStyles();
+}
+
+applyStyles() {
+    if (!this.currentCharacter) return;
+
+    const style = {
+        background: {
+            type: this.panel.querySelector('#background-type').value,
+            color: this.panel.querySelector('#background-color').getAttribute('color'),
+            gradient: this.getGradientSettings()
+        },
+        text: {
+            main: this.panel.querySelector('#main-text-color').getAttribute('color'),
+            italics: this.panel.querySelector('#italics-text-color').getAttribute('color'),
+            quote: this.panel.querySelector('#quote-text-color').getAttribute('color')
+        },
+        effects: {
+            quoteGlow: {
+                enabled: this.panel.querySelector('#quote-glow-enabled').checked,
+                color: this.panel.querySelector('#quote-glow-color').getAttribute('color'),
+                intensity: parseInt(this.panel.querySelector('#quote-glow-intensity').value)
+            }
+        },
+        padding: this.getPaddingSettings()
+    };
+
+    this.settings.styles[this.currentCharacter] = style;
+    this.updateMessageStyles(this.currentCharacter, style);
+    this.saveSettings();
+}
+
+updateMessageStyles(characterId, style) {
+    document.querySelectorAll(`.mes`).forEach(message => {
+        const name = message.querySelector('.name_text')?.textContent?.trim();
+        const isUser = message.getAttribute('is_user') === 'true';
+        const thisCharId = `${isUser ? 'user' : 'char'}_${name}`;
+        
+        if (thisCharId === characterId) {
+            const mesBlock = message.querySelector('.mes_block');
+            const mesText = message.querySelector('.mes_text');
+            const nameText = message.querySelector('.name_text');
+            const italics = mesText.querySelectorAll('em, i');
+            const quotes = mesText.querySelectorAll('q');
+
+            // Apply background
+            if (style.background.type === 'solid') {
+                mesBlock.style.background = style.background.color;
+            } else {
+                const gradType = style.background.type === 'linear' ? 'linear-gradient' : 'radial-gradient';
+                const gradString = style.background.gradient.colors.map((color, i) => 
+                    `${color} ${style.background.gradient.positions[i]}%`).join(', ');
+                const angle = style.background.type === 'linear' ? `${style.background.gradient.angle}deg, ` : '';
+                mesBlock.style.background = `${gradType}(${angle}${gradString})`;
+            }
+
+            // Apply text styles
+            mesText.style.color = style.text.main;
+            nameText.style.color = style.text.main;
+            
+            italics.forEach(el => {
+                el.style.color = style.text.italics;
+            });
+
+            quotes.forEach(quote => {
+                quote.style.color = style.text.quote;
+                if (style.effects.quoteGlow.enabled) {
+                    quote.style.textShadow = `0 0 ${style.effects.quoteGlow.intensity}px ${style.effects.quoteGlow.color}`;
+                    quote.style.filter = `drop-shadow(0 0 ${style.effects.quoteGlow.intensity/2}px ${style.effects.quoteGlow.color})`;
+                } else {
+                    quote.style.textShadow = 'none';
+                    quote.style.filter = 'none';
+                }
+            });
+
+            // Apply padding
+            mesBlock.style.padding = `${style.padding.top}px ${style.padding.right}px ${style.padding.bottom}px ${style.padding.left}px`;
+        }
+    });
+}
+
+getGradientSettings() {
+    if (this.panel.querySelector('#background-type').value === 'solid') return null;
+
+    return {
+        colors: Array.from(this.panel.querySelectorAll('.gradient-color')).map(picker => picker.getAttribute('color')),
+        positions: Array.from(this.panel.querySelectorAll('.gradient-position')).map(input => parseInt(input.value)),
+        angle: parseInt(this.panel.querySelector('.gradient-angle-slider').value)
+    };
+}
+
+saveSettings() {
+    window.extension_settings[MODULE_NAME] = this.settings;
+    if (window.saveSettingsDebounced) {
+        window.saveSettingsDebounced();
+    }
+}
+    
     refreshCharacterList() {
         const select = this.panel.querySelector('#character-select');
         select.innerHTML = '<option value="">选择角色...</option>';
