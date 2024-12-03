@@ -293,115 +293,88 @@ createEditorPanel() {
     }
 
 initEventListeners() {
-        const header = this.panel.querySelector('.panel-header');
-        const panel = this.panel;
+    const header = this.panel.querySelector('.panel-header');
+    const panel = this.panel;
 
-        // Panel controls
-        this.panel.querySelector('.close-btn').addEventListener('click', () => this.hidePanel());
-        this.panel.querySelector('.minimize-btn').addEventListener('click', () => this.toggleMinimize());
-        
-        // Mouse events for dragging
-        header.addEventListener('mousedown', (e) => {
-            if (e.target.closest('.header-controls') || e.target.closest('.panel-resize-handle')) {
-                return;
-            }
-            this.startDragging(e);
+    // Panel controls
+    this.panel.querySelector('.close-btn').addEventListener('click', () => this.hidePanel());
+    this.panel.querySelector('.minimize-btn').addEventListener('click', () => this.toggleMinimize());
+
+    // Mouse events for dragging
+    header.addEventListener('mousedown', (e) => {
+        if (e.target.closest('.header-controls') || e.target.closest('.panel-resize-handle')) {
+            return;
+        }
+        this.startDragging(e);
+    });
+
+    document.addEventListener('mousemove', (e) => this.handleDragging(e));
+    document.addEventListener('mouseup', () => this.stopDragging());
+
+    // Touch events for dragging
+    header.addEventListener('touchstart', (e) => {
+        if (e.target.closest('.header-controls')) return;
+
+        e.preventDefault();
+        const touch = e.touches[0];
+        this.startDragging(touch);
+    });
+
+    document.addEventListener('touchmove', (e) => {
+        if (!this.isDragging) return;
+
+        e.preventDefault();
+        const touch = e.touches[0];
+        this.handleDragging(touch);
+    }, { passive: false });
+
+    document.addEventListener('touchend', () => {
+        this.stopDragging();
+    });
+
+    // Mouse and touch events for resizing
+    const resizeHandle = panel.querySelector('.panel-resize-handle');
+
+    resizeHandle.addEventListener('mousedown', (e) => this.startResizing(e));
+    resizeHandle.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        const touch = e.touches[0];
+        this.startResizing(touch);
+    });
+
+    document.addEventListener('mousemove', (e) => this.handleResizing(e));
+    document.addEventListener('touchmove', (e) => {
+        if (!this.isResizing) return;
+
+        e.preventDefault();
+        const touch = e.touches[0];
+        this.handleResizing(touch);
+    }, { passive: false });
+
+    document.addEventListener('mouseup', () => this.stopResizing());
+    document.addEventListener('touchend', () => {
+        this.stopResizing();
+    });
+
+    // Tab switching
+    this.panel.querySelectorAll('.tab-button').forEach(button => {
+        button.addEventListener('click', () => {
+            const tabName = button.dataset.tab;
+            this.panel.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            this.panel.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            this.panel.querySelector(`.tab-content[data-tab="${tabName}"]`).classList.add('active');
         });
-        
-        document.addEventListener('mousemove', (e) => this.handleDragging(e));
-        document.addEventListener('mouseup', () => this.stopDragging());
+    });
 
-        // Touch events for dragging
-        header.addEventListener('touchstart', (e) => {
-            if (e.target.closest('.header-controls')) return;
-            
-            e.preventDefault();
-            const touch = e.touches[0];
-            this.startDragging(touch);
-            panel.classList.add('dragging');
-        });
-
-        document.addEventListener('touchmove', (e) => {
-            if (!this.isDragging) return;
-            
-            e.preventDefault();
-            const touch = e.touches[0];
-            this.handleDragging(touch);
-        }, { passive: false });
-
-        document.addEventListener('touchend', () => {
-            panel.classList.remove('dragging');
-            this.stopDragging();
-        });
-
-        // Mouse and touch events for resizing
-        const resizeHandle = panel.querySelector('.panel-resize-handle');
-        
-        resizeHandle.addEventListener('mousedown', (e) => this.startResizing(e));
-        resizeHandle.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            const touch = e.touches[0];
-            this.startResizing(touch);
-            panel.classList.add('resizing');
-        });
-
-        document.addEventListener('mousemove', (e) => this.handleResizing(e));
-        document.addEventListener('touchmove', (e) => {
-            if (!this.isResizing) return;
-            
-            e.preventDefault();
-            const touch = e.touches[0];
-            this.handleResizing(touch);
-        }, { passive: false });
-
-        document.addEventListener('mouseup', () => this.stopResizing());
-        document.addEventListener('touchend', () => {
-            panel.classList.remove('resizing');
-            this.stopResizing();
-        });
-
-        // Style controls
-        const characterSelect = this.panel.querySelector('#character-select');
-        characterSelect.addEventListener('change', () => this.onCharacterSelect());
-
-        const backgroundType = this.panel.querySelector('#background-type');
-        backgroundType.addEventListener('change', () => this.onBackgroundTypeChange());
-
-        // Color pickers
-        const colorPickers = this.panel.querySelectorAll('toolcool-color-picker');
-        colorPickers.forEach(picker => {
-            picker.addEventListener('change', () => this.applyStyles());
-        });
-
-        // Quote glow
-        const glowEnabled = this.panel.querySelector('#quote-glow-enabled');
-        glowEnabled.addEventListener('change', () => this.toggleQuoteGlow());
-
-        // Padding inputs
-        const paddingInputs = this.panel.querySelectorAll('.padding-input input');
-        paddingInputs.forEach(input => {
-            input.addEventListener('change', () => this.applyStyles());
-        });
-
-        // Tab switching
-        this.panel.querySelectorAll('.tab-button').forEach(button => {
-            button.addEventListener('click', () => {
-                const tabName = button.dataset.tab;
-                this.panel.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
-                this.panel.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-                this.panel.querySelector(`.tab-content[data-tab="${tabName}"]`).classList.add('active');
-            });
-        });
-
-        // Save and Reset buttons
-        this.panel.querySelector('.save-btn').addEventListener('click', () => this.saveStyles());
-        this.panel.querySelector('.reset-btn').addEventListener('click', () => {
-            if (confirm('确定要重置当前角色的样式吗？')) {
-                this.resetStyles();
-            }
-        });
-    }
+    // Save and Reset buttons
+    this.panel.querySelector('.save-btn').addEventListener('click', () => this.saveStyles());
+    this.panel.querySelector('.reset-btn').addEventListener('click', () => {
+        if (confirm('确定要重置当前角色的样式吗？')) {
+            this.resetStyles();
+        }
+    });
+}
 
     showPanel() {
         this.panel.style.display = 'block';
@@ -413,27 +386,30 @@ initEventListeners() {
     }
 
     toggleMinimize() {
-        const content = this.panel.querySelector('.panel-content');
-        const minimizeBtn = this.panel.querySelector('.minimize-btn i');
-        const panel = this.panel;
-        
-        if (panel.classList.contains('minimized')) {
-            content.style.display = 'block';
-            minimizeBtn.className = 'fa-solid fa-minus';
-            panel.classList.remove('minimized');
-            
-            if (panel.dataset.originalHeight) {
-                panel.style.height = panel.dataset.originalHeight;
-            }
-        } else {
-            content.style.display = 'none';
-            minimizeBtn.className = 'fa-solid fa-plus';
-            panel.classList.add('minimized');
-            
-            panel.dataset.originalHeight = panel.style.height;
-            panel.style.height = 'auto';
+    const content = this.panel.querySelector('.panel-content');
+    const resizeHandle = this.panel.querySelector('.panel-resize-handle');
+    const minimizeBtn = this.panel.querySelector('.minimize-btn i');
+    const panel = this.panel;
+
+    if (panel.classList.contains('minimized')) {
+        content.style.display = 'block';
+        resizeHandle.style.display = 'block';
+        minimizeBtn.className = 'fa-solid fa-minus';
+        panel.classList.remove('minimized');
+
+        if (panel.dataset.originalHeight) {
+            panel.style.height = panel.dataset.originalHeight;
         }
+    } else {
+        content.style.display = 'none';
+        resizeHandle.style.display = 'none';
+        minimizeBtn.className = 'fa-solid fa-plus';
+        panel.classList.add('minimized');
+
+        panel.dataset.originalHeight = panel.style.height;
+        panel.style.height = '40px'; // 高度仅保留标题栏
     }
+}
 
 startDragging(e) {
         if (e.target.closest('.header-controls') || e.target.closest('.panel-resize-handle')) {
