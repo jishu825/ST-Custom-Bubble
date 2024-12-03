@@ -290,10 +290,18 @@ input[type="range"]::-webkit-slider-thumb {
 /* 最小化状态 */
 .chat-stylist-panel.minimized {
     height: auto !important;
+    min-height: unset !important;
 }
 
-.chat-stylist-panel.minimized .panel-resize-handle {
-    display: none;
+.chat-stylist-panel.minimized .panel-content {
+    display: none !important;
+    height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.panel-header {
+    min-height: 45px; /* 确保header有固定的最小高度 */
 }
 
 /* 下拉选择框样式 */
