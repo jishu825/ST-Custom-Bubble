@@ -1,7 +1,9 @@
 {
     "display_name": "Chat Stylist",
     "loading_order": 10,
-    "requires": [],
+    "requires": [
+        "toolcool-color-picker"
+    ],
     "optional": [],
     "js": "index.js",
     "css": "style.css",
