@@ -1,92 +1,81 @@
-import { BaseComponent } from './BaseComponent.js';
-import { EventTypes } from '../../core/EventManager.js';
+import { DOMUtils } from "../../utils/DOMUtils.js";
 
-export class ColorPicker extends BaseComponent {
-    constructor(eventManager, options = {}) {
-        super(eventManager);
+export class ColorPicker {
+    constructor(options = {}) {
         this.options = {
             label: options.label || '',
-            initialColor: options.initialColor || '#000000',
+            initialColor: options.initialColor || 'rgb(208, 206, 196)',
             showAlpha: options.showAlpha || false,
-            id: options.id || `color-picker-${Math.random().toString(36).substr(2, 9)}`
+            onChange: options.onChange || null,
+            id: `cp-${Math.random().toString(36).substring(2, 9)}`
         };
+
+        this.element = null;
+        this.value = this.options.initialColor;
     }
 
     createElement() {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'color-picker-wrapper';
-
+        const container = DOMUtils.createElement('div', 'color-picker-wrapper');
+        
         if (this.options.label) {
-            const label = document.createElement('label');
+            const label = DOMUtils.createElement('label', 'color-picker-label');
             label.textContent = this.options.label;
-            label.htmlFor = this.options.id;
-            wrapper.appendChild(label);
+            container.appendChild(label);
         }
 
-        const pickerContainer = document.createElement('div');
-        pickerContainer.className = 'color-picker-container';
+        // 创建取色器容器
+        const pickerContainer = DOMUtils.createElement('div', 'color-picker-container');
+        
+        // 添加取色器组件
+        const saturation = document.createElement('toolcool-color-picker-saturation');
+        const hue = document.createElement('toolcool-color-picker-hue');
+        const alpha = document.createElement('toolcool-color-picker-alpha');
+        const fields = document.createElement('toolcool-color-picker-fields');
 
-        const picker = document.createElement('input');
-        picker.type = 'color';
-        picker.id = this.options.id;
-        picker.value = this.options.initialColor;
+        // 设置公共属性
+        [saturation, hue, alpha, fields].forEach(component => {
+            component.setAttribute('color', this.options.initialColor);
+            component.setAttribute('cid', this.options.id);
+        });
 
+        // 添加到容器
+        pickerContainer.appendChild(saturation);
+        pickerContainer.appendChild(hue);
         if (this.options.showAlpha) {
-            const alphaSlider = document.createElement('input');
-            alphaSlider.type = 'range';
-            alphaSlider.min = '0';
-            alphaSlider.max = '100';
-            alphaSlider.value = '100';
-            alphaSlider.className = 'alpha-slider';
-            pickerContainer.appendChild(alphaSlider);
-
-            alphaSlider.addEventListener('input', this.handleAlphaChange.bind(this));
+            pickerContainer.appendChild(alpha);
         }
+        pickerContainer.appendChild(fields);
 
-        pickerContainer.appendChild(picker);
-        wrapper.appendChild(pickerContainer);
+        container.appendChild(pickerContainer);
+        this.element = container;
 
-        picker.addEventListener('input', this.handleColorChange.bind(this));
-        picker.addEventListener('change', this.handleColorChange.bind(this));
+        // 绑定事件监听
+        this.bindEvents();
 
-        return wrapper;
+        return container;
     }
 
-    handleColorChange(event) {
-        const color = event.target.value;
-        const alpha = this.getAlpha();
-        this.eventManager.emit(EventTypes.UI_COLOR_CHANGED, {
-            id: this.options.id,
-            color,
-            alpha
+    bindEvents() {
+        // 监听颜色变化事件
+        this.element.addEventListener('color-change', (event) => {
+            this.value = event.detail.color;
+            if (this.options.onChange) {
+                this.options.onChange(this.value);
+            }
         });
     }
 
-    handleAlphaChange(event) {
-        const alpha = event.target.value / 100;
-        this.eventManager.emit(EventTypes.UI_COLOR_CHANGED, {
-            id: this.options.id,
-            color: this.getColor(),
-            alpha
-        });
+    getValue() {
+        return this.value;
     }
 
-    getColor() {
-        return this.element.querySelector('input[type="color"]').value;
-    }
-
-    getAlpha() {
-        const alphaSlider = this.element.querySelector('.alpha-slider');
-        return alphaSlider ? alphaSlider.value / 100 : 1;
-    }
-
-    setValue(color, alpha) {
-        const picker = this.element.querySelector('input[type="color"]');
-        picker.value = color;
-
-        const alphaSlider = this.element.querySelector('.alpha-slider');
-        if (alphaSlider && alpha !== undefined) {
-            alphaSlider.value = alpha * 100;
+    setValue(color) {
+        this.value = color;
+        if (this.element) {
+            const components = this.element.querySelectorAll('[cid]');
+            components.forEach(component => {
+                component.setAttribute('color', color);
+            });
         }
     }
 }
