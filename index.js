@@ -1,9 +1,9 @@
+// 在文件顶部的导入部分更新
 import { extension_settings } from "../../../extensions.js";
-import { saveSettingsDebounced } from "../../../../script.js";
+import { saveSettingsDebounced, getContext } from "../../../../script.js";
 
-const debug = {
-    log: (...args) => console.log('[Chat Stylist]', ...args)
-};
+// 获取 ST 上下文
+const { eventSource, event_types } = getContext();
 
 class ChatStylist {
     constructor() {
@@ -49,36 +49,38 @@ class ChatStylist {
 this.characterUpdateDebounced = this.debounce(this.updateCharacterList.bind(this), 500); // 防抖函数
     }
 
-    addSettings() {
-        const html = `
-            <div id="chat-stylist-settings">
-                <div class="inline-drawer">
-                    <div class="inline-drawer-toggle inline-drawer-header">
-                        <b>Chat Stylist</b>
-                        <div class="inline-drawer-icon fa-solid fa-circle-chevron-down"></div>
-                    </div>
-                    <div class="inline-drawer-content">
-                        <div id="chat-stylist-button" class="menu_button">
-                            <i class="fa-solid fa-palette"></i>
-                            <span class="chat-stylist-label">聊天样式编辑器 / Chat Style Editor</span>
-                        </div>
+addSettings() {
+    const html = `
+        <div id="chat-stylist-settings">
+            <div class="inline-drawer">
+                <div class="inline-drawer-toggle inline-drawer-header">
+                    <b>Chat Stylist</b>
+                    <div class="inline-drawer-icon fa-solid fa-circle-chevron-down"></div>
+                </div>
+                <div class="inline-drawer-content">
+                    <div id="chat-stylist-button" class="menu_button">
+                        <i class="fa-solid fa-palette"></i>
+                        <span class="chat-stylist-label">聊天样式编辑器 / Chat Style Editor</span>
                     </div>
                 </div>
-            </div>`;
+            </div>
+        </div>`;
 
-        const container = document.querySelector('#extensions_settings');
-        if (container) {
-              container.insertAdjacentHTML('beforeend', html);
-          } else {
-              console.error('无法找到拓展设置容器');
-          }
-
-          $('#chat-stylist-button').on('click', () => {
-              this.showEditor();
-          });
-    
-          debug.log('Settings added');
-      }
+    // 更改为 extensions_settings2
+    const container = document.querySelector('#extensions_settings2');
+    if (container) {
+        container.insertAdjacentHTML('beforeend', html);
+        
+        // 绑定点击事件
+        document.getElementById('chat-stylist-button')?.addEventListener('click', () => {
+            this.showEditor();
+        });
+        
+        debug.log('Settings added');
+    } else {
+        console.error('Cannot find #extensions_settings2 container');
+    }
+}
 
     createEditorPanel() {
         if (this.panel) return;
@@ -702,7 +704,6 @@ setupCharacterObserver() {
         let shouldUpdate = false;
 
         for (const mutation of mutations) {
-            // 检查是否有消息相关的变化
             if (mutation.type === 'childList' &&
                 (mutation.target.classList.contains('mes') ||
                  mutation.target.closest('.mes'))) {
@@ -712,16 +713,20 @@ setupCharacterObserver() {
         }
 
         if (shouldUpdate) {
-            this.characterUpdateDebounced(); // 防止多次触发
+            this.characterUpdateDebounced();
         }
     });
 
     observer.observe(chatContainer, config);
 
-    // 监听聊天切换事件
-    eventSource.on(event_types.CHAT_CHANGED, () => {
-        this.characterUpdateDebounced();
-    });
+    // 确保 eventSource 和 event_types 存在
+    if (eventSource && event_types) {
+        eventSource.on(event_types.CHAT_CHANGED, () => {
+            this.characterUpdateDebounced();
+        });
+    } else {
+        console.warn('Event system not initialized');
+    }
 }
 
     debounce(func, wait) {
@@ -734,7 +739,11 @@ setupCharacterObserver() {
 }
 
 // 初始化扩展
-jQuery(() => {
-    window.chatStylist = new ChatStylist();
-    window.chatStylist.addSettings();
+jQuery(async () => {
+    try {
+        window.chatStylist = new ChatStylist();
+        window.chatStylist.addSettings();
+    } catch (err) {
+        console.error('Failed to initialize Chat Stylist:', err);
+    }
 });
