@@ -4,9 +4,7 @@
     "requires": [],
     "optional": [],
     "js": "index.js",
-    "css": [
-        "styles/main.css"
-    ],
+    "css": "styles/main.css",
     "author": "既殊",
     "version": "1.0.0",
     "homePage": "https://github.com/jishu825/SillyTavern-Chat-Stylist",
