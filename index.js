@@ -50,42 +50,45 @@ class ChatStylist {
         this.bindEvents();
     }
 
-    addSettings() {
-        const html = `
-            <div id="chat-stylist-settings">
-                <div class="inline-drawer">
-                    <div class="inline-drawer-toggle inline-drawer-header">
-                        <b>Chat Stylist</b>
-                        <div class="inline-drawer-icon fa-solid fa-circle-chevron-down"></div>
-                    </div>
-                    <div class="inline-drawer-content">
-                        <label class="checkbox_label">
-                            <input type="checkbox" id="chat-stylist-enabled">
-                            <span>启用聊天样式</span>
-                        </label>
-                        <hr>
-                        <div id="chat-stylist-button" class="menu_button">
+addSettings() {
+    const html = `
+        <div id="chat-stylist-settings">
+            <div class="inline-drawer">
+                <div class="inline-drawer-toggle inline-drawer-header">
+                    <b>Chat Stylist</b>
+                    <div class="inline-drawer-icon fa-solid fa-circle-chevron-down"></div>
+                </div>
+                <div class="inline-drawer-content">
+                    <div class="chat-stylist-controls">
+                        <button id="chat-stylist-button" class="menu_button">
                             <i class="fa-solid fa-palette"></i>
-                            <span>打开样式编辑器</span>
-                        </div>
+                            <span>样式编辑器</span>
+                        </button>
+                        <button id="chat-stylist-defaults" class="menu_button" title="重置为默认样式">
+                            <i class="fa-solid fa-rotate-left"></i>
+                        </button>
+                    </div>
+                    <div class="chat-stylist-info">
+                        <small class="chat-stylist-status">已应用样式：默认</small>
                     </div>
                 </div>
-            </div>`;
+            </div>
+        </div>`;
 
-        $('#extensions_settings2').append(html);
+    $('#extensions_settings2').append(html);
 
-        // 绑定开关事件
-        $('#chat-stylist-enabled').prop('checked', this.settings.enabled).on('change', (e) => {
-            this.settings.enabled = !!e.target.checked;
-            saveSettingsDebounced();
-        });
+    // 绑定编辑器按钮事件
+    $('#chat-stylist-button').on('click', () => {
+        this.toggleEditor();
+    });
 
-        // 绑定编辑器按钮事件
-        $('#chat-stylist-button').on('click', () => {
-            // TODO: 打开样式编辑器
-            console.log('Opening style editor...');
-        });
-    }
+    // 绑定重置按钮事件
+    $('#chat-stylist-defaults').on('click', () => {
+        if(confirm('确定要重置为默认样式吗？')) {
+            this.resetStyles();
+        }
+    });
+}
 
     bindEvents() {
         // 监听聊天变更事件
