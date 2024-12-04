@@ -45,6 +45,8 @@ class ChatStylist {
         this.isDragging = false;
         this.isResizing = false;
         this.touchIdentifier = null;
+        this.setupCharacterObserver(); // 初始化角色变化监听器
+this.characterUpdateDebounced = this.debounce(this.updateCharacterList.bind(this), 500); // 防抖函数
     }
 
     addSettings() {
@@ -442,39 +444,47 @@ class ChatStylist {
         }
     }
 
-    refreshCharacterList() {
-        const select = this.panel.querySelector('#character-select');
-        select.innerHTML = '<option value="">选择角色...</option>';
+    updateCharacterList() {
+    const characterSelect = this.panel.querySelector('#character-select');
+    const currentValue = characterSelect.value; // 当前选中的值
+    const characters = new Map();
 
-        // 使用Map来存储角色，确保唯一性
-        const characters = new Map();
-        document.querySelectorAll('.mes').forEach(message => {
-            const name = message.querySelector('.name_text')?.textContent?.trim();
-            const isUser = message.getAttribute('is_user') === 'true';
+    // 获取所有消息中的角色
+    document.querySelectorAll('.mes').forEach(message => {
+        const nameElem = message.querySelector('.name_text');
+        if (!nameElem) return;
 
-            if (name && name !== '${characterName}') {
-                const charId = `${isUser ? 'user' : 'char'}_${name}`;
-                // 只有当Map中不存在该角色时才添加
-                if (!characters.has(charId)) {
-                    characters.set(charId, { id: charId, name, isUser });
-                }
+        const name = nameElem.textContent.trim();
+        const isUser = message.getAttribute('is_user') === 'true';
+        const avatar = message.querySelector('.avatar img');
+
+        if (name && name !== '${characterName}' && avatar) {
+            const id = `${isUser ? 'user' : 'char'}_${name}`;
+            if (!characters.has(id)) {
+                characters.set(id, {
+                    id,
+                    name,
+                    isUser,
+                    avatar: avatar.src
+                });
             }
-        });
-
-        // 将Map转换为数组并添加到选择框
-        [...characters.values()].forEach(char => {
-            const option = document.createElement('option');
-            option.value = char.id;
-            option.textContent = `${char.name} (${char.isUser ? '用户' : 'AI'})`;
-            select.appendChild(option);
-        });
-
-        // 绑定选择事件
-        if (!select.hasEventListener) {
-            select.addEventListener('change', () => this.loadStyles(select.value));
-            select.hasEventListener = true; // 标记已添加事件监听器
         }
+    });
+
+    // 更新选择框选项
+    characterSelect.innerHTML = '<option value="">选择角色...</option>';
+    [...characters.values()].forEach(char => {
+        const option = document.createElement('option');
+        option.value = char.id;
+        option.textContent = `${char.name} (${char.isUser ? '用户' : 'AI'})`;
+        characterSelect.appendChild(option);
+    });
+
+    // 保持之前选中的值
+    if (currentValue && [...characters.keys()].includes(currentValue)) {
+        characterSelect.value = currentValue;
     }
+}
 
     getCurrentCharacterId() {
         return this.panel.querySelector('#character-select').value;
@@ -671,6 +681,51 @@ class ChatStylist {
             debug.log('Styles reset for:', charId);
         }
     }
+
+    // 添加角色变化观察器
+setupCharacterObserver() {
+    const chatContainer = document.getElementById('chat');
+    if (!chatContainer) return;
+
+    const config = {
+        childList: true,
+        subtree: true,
+        characterData: true
+    };
+
+    const observer = new MutationObserver((mutations) => {
+        let shouldUpdate = false;
+
+        for (const mutation of mutations) {
+            // 检查是否有消息相关的变化
+            if (mutation.type === 'childList' &&
+                (mutation.target.classList.contains('mes') ||
+                 mutation.target.closest('.mes'))) {
+                shouldUpdate = true;
+                break;
+            }
+        }
+
+        if (shouldUpdate) {
+            this.characterUpdateDebounced(); // 防止多次触发
+        }
+    });
+
+    observer.observe(chatContainer, config);
+
+    // 监听聊天切换事件
+    eventSource.on(event_types.CHAT_CHANGED, () => {
+        this.characterUpdateDebounced();
+    });
+}
+
+    debounce(func, wait) {
+    let timeout;
+    return function (...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+}
 }
 
 // 初始化扩展
