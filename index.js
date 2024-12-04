@@ -1,86 +1,88 @@
-// 在文件顶部的导入部分更新
-import { extension_settings } from "../../../extensions.js";
-import { saveSettingsDebounced, getContext } from "../../../../script.js";
+import { getContext, saveSettingsDebounced } from '../../../script.js';
+import { extension_settings } from '../../extensions.js';
+import { registerSlashCommand } from '../../../slash-commands.js';
 
-// 获取 ST 上下文
-const { eventSource, event_types } = getContext();
+// 调试工具
+const debug = {
+    log: (...args) => console.log('[Chat Stylist]', ...args)
+};
+
+// 确保扩展设置存在
+if (!extension_settings.chat_stylist) {
+    extension_settings.chat_stylist = {
+        enabled: false,
+        styles: {},
+        defaultStyle: {
+            background: {
+                type: 'solid',
+                color: 'rgba(254, 222, 169, 0.5)',
+                gradient: {
+                    colors: ['rgba(254, 222, 169, 0.5)', 'rgba(255, 255, 255, 0.5)'],
+                    positions: [0, 100],
+                    angle: 90
+                }
+            },
+            text: {
+                main: 'rgba(208, 206, 196, 1)',
+                italics: 'rgba(183, 160, 255, 1)',
+                quote: {
+                    color: 'rgba(224, 159, 254, 1)',
+                    glow: {
+                        enabled: false,
+                        color: 'rgba(224, 159, 254, 0.8)',
+                        intensity: 5
+                    }
+                }
+            },
+            padding: {
+                top: 10,
+                right: 15,
+                bottom: 10,
+                left: 15
+            }
+        }
+    };
+}
+
+// 辅助函数：等待元素加载
+function waitForElement(selector) {
+    return new Promise((resolve) => {
+        if (document.querySelector(selector)) {
+            return resolve(document.querySelector(selector));
+        }
+
+        const observer = new MutationObserver(() => {
+            if (document.querySelector(selector)) {
+                resolve(document.querySelector(selector));
+                observer.disconnect();
+            }
+        });
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    });
+}
 
 class ChatStylist {
     constructor() {
+        const context = getContext();
+        this.context = context;
+        this.eventSource = context.eventSource;
+        this.event_types = context.event_types;
+
         // 初始化设置
-        this.settings = extension_settings.chat_stylist || {
-            styles: {},
-            defaultStyle: {
-                background: {
-                    type: 'solid',
-                    color: 'rgba(254, 222, 169, 0.5)',
-                    gradient: {
-                        colors: ['rgba(254, 222, 169, 0.5)', 'rgba(255, 255, 255, 0.5)'],
-                        positions: [0, 100],
-                        angle: 90
-                    }
-                },
-                text: {
-                    main: 'rgba(208, 206, 196, 1)',
-                    italics: 'rgba(183, 160, 255, 1)',
-                    quote: {
-                        color: 'rgba(224, 159, 254, 1)',
-                        glow: {
-                            enabled: false,
-                            color: 'rgba(224, 159, 254, 0.8)',
-                            intensity: 5
-                        }
-                    }
-                },
-                padding: {
-                    top: 10,
-                    right: 15,
-                    bottom: 10,
-                    left: 15
-                }
-            }
-        };
-        extension_settings.chat_stylist = this.settings;
+        this.settings = extension_settings.chat_stylist;
         this.panel = null;
         this.isDragging = false;
         this.isResizing = false;
         this.touchIdentifier = null;
-        this.setupCharacterObserver(); // 初始化角色变化监听器
-this.characterUpdateDebounced = this.debounce(this.updateCharacterList.bind(this), 500); // 防抖函数
-    }
-
-addSettings() {
-    const html = `
-        <div id="chat-stylist-settings">
-            <div class="inline-drawer">
-                <div class="inline-drawer-toggle inline-drawer-header">
-                    <b>Chat Stylist</b>
-                    <div class="inline-drawer-icon fa-solid fa-circle-chevron-down"></div>
-                </div>
-                <div class="inline-drawer-content">
-                    <div id="chat-stylist-button" class="menu_button">
-                        <i class="fa-solid fa-palette"></i>
-                        <span class="chat-stylist-label">聊天样式编辑器 / Chat Style Editor</span>
-                    </div>
-                </div>
-            </div>
-        </div>`;
-
-    // 更改为 extensions_settings2
-    const container = document.querySelector('#extensions_settings2');
-    if (container) {
-        container.insertAdjacentHTML('beforeend', html);
         
-        // 绑定点击事件
-        document.getElementById('chat-stylist-button')?.addEventListener('click', () => {
-            this.showEditor();
-        });
-        
-        debug.log('Settings added');
-    } else {
-        console.error('Cannot find #extensions_settings2 container');
+        // 初始化角色观察器
+        this.setupCharacterObserver();
+        this.characterUpdateDebounced = this.debounce(this.updateCharacterList.bind(this), 500);
     }
-}
 
     createEditorPanel() {
         if (this.panel) return;
@@ -738,12 +740,72 @@ setupCharacterObserver() {
 }
 }
 
-// 初始化扩展
+// 扩展入口函数
+async function moduleWorker() {
+    const context = getContext();
+    
+    // 注册扩展设置UI
+    const settingsHtml = `
+        <div id="chat-stylist-settings">
+            <div class="inline-drawer">
+                <div class="inline-drawer-toggle inline-drawer-header">
+                    <b>Chat Stylist</b>
+                    <div class="inline-drawer-icon fa-solid fa-circle-chevron-down"></div>
+                </div>
+                <div class="inline-drawer-content">
+                    <label class="checkbox_label">
+                        <input type="checkbox" 
+                               id="chat-stylist-enabled" 
+                               ${extension_settings.chat_stylist.enabled ? 'checked' : ''}>
+                        <span>启用聊天样式编辑器</span>
+                    </label>
+                    <div id="chat-stylist-button" class="menu_button">
+                        <i class="fa-solid fa-palette"></i>
+                        <span class="chat-stylist-label">打开样式编辑器</span>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+
+    // 等待DOM加载完成
+    await waitForElement('#extensions_settings2');
+    $('#extensions_settings2').append(settingsHtml);
+
+    // 绑定事件处理
+    $('#chat-stylist-enabled').on('change', function() {
+        extension_settings.chat_stylist.enabled = !!$(this).prop('checked');
+        saveSettingsDebounced();
+    });
+
+    $('#chat-stylist-button').on('click', function() {
+        if (!extension_settings.chat_stylist.enabled) {
+            toastr.warning('请先启用聊天样式编辑器');
+            return;
+        }
+        window.chatStylist.showEditor();
+    });
+
+    // 注册斜杠命令
+    registerSlashCommand('style', (args) => {
+        if (!extension_settings.chat_stylist.enabled) {
+            toastr.warning('请先启用聊天样式编辑器');
+            return;
+        }
+        window.chatStylist.showEditor();
+    }, [], '打开聊天样式编辑器', true, true);
+
+    // 初始化主类
+    window.chatStylist = new ChatStylist();
+}
+
+// 扩展初始化入口
 jQuery(async () => {
     try {
-        window.chatStylist = new ChatStylist();
-        window.chatStylist.addSettings();
+        // 等待SillyTavern核心功能初始化
+        await waitForElement('#extensions_settings2');
+        await moduleWorker();
+        console.log('[Chat Stylist] 扩展已加载');
     } catch (err) {
-        console.error('Failed to initialize Chat Stylist:', err);
+        console.error('[Chat Stylist] 扩展加载失败:', err);
     }
 });
