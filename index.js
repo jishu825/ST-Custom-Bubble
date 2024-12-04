@@ -1,5 +1,6 @@
-import { extension_settings } from "../../extensions.js";
-import { saveSettingsDebounced, eventSource, event_types } from "../../../script.js";
+// 修改外部依赖的导入路径
+import { extension_settings } from "../../../extensions.js";
+import { saveSettingsDebounced, eventSource, event_types } from "../../../../script.js";
 
 // 修改本地模块的导入路径
 import { Settings } from "./src/core/Settings.js";
