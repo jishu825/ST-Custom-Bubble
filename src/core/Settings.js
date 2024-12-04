@@ -5,10 +5,14 @@ export class Settings {
     constructor() {
         this.defaultSettings = {
             enabled: true,
-            styles: {},
-            defaultStyle: new StyleConfig().toJSON()
+            defaultStyle: StyleConfig.createDefault().toJSON(),
+            userStyle: null,
+            systemStyle: null,
+            characterStyles: {},
+            templates: {}
         };
 
+        // 初始化设置
         this.settings = extension_settings.chat_stylist || this.defaultSettings;
         extension_settings.chat_stylist = this.settings;
     }
@@ -30,6 +34,27 @@ export class Settings {
             throw new Error('Invalid style configuration');
         }
         this.settings.defaultStyle = style.toJSON();
+    }
+
+    getUserStyle() {
+        return this.settings.userStyle ? new StyleConfig(this.settings.userStyle) : this.getDefaultStyle();
+    }
+
+    getSystemStyle() {
+        return this.settings.systemStyle ? new StyleConfig(this.settings.systemStyle) : this.getDefaultStyle();
+    }
+
+    getCharacterStyle(characterId) {
+        return this.settings.characterStyles[characterId] 
+            ? new StyleConfig(this.settings.characterStyles[characterId])
+            : this.getDefaultStyle();
+    }
+
+    setCharacterStyle(characterId, style) {
+        if (!(style instanceof StyleConfig)) {
+            throw new Error('Invalid style configuration');
+        }
+        this.settings.characterStyles[characterId] = style.toJSON();
     }
 
     reset() {
