@@ -67,22 +67,43 @@ function waitForElement(selector) {
 }
 
 class ChatStylist {
+    // 在 ChatStylist 类的构造函数中添加错误处理
     constructor() {
-        const context = getContext();
-        this.context = context;
-        this.eventSource = context.eventSource;
-        this.event_types = context.event_types;
-
-        // 初始化设置
-        this.settings = extension_settings.chat_stylist;
-        this.panel = null;
-        this.isDragging = false;
-        this.isResizing = false;
-        this.touchIdentifier = null;
+        try {
+            const context = getContext();
+            if (!context) {
+                throw new Error('SillyTavern context not initialized');
+            }
         
-        // 初始化角色观察器
-        this.setupCharacterObserver();
-        this.characterUpdateDebounced = this.debounce(this.updateCharacterList.bind(this), 500);
+            this.context = context;
+            this.eventSource = context.eventSource;
+            this.event_types = context.event_types;
+
+            // 确保设置存在
+            if (!extension_settings.chat_stylist) {
+                extension_settings.chat_stylist = {
+                    enabled: false,
+                    styles: {},
+                    defaultStyle: {
+                        // ... 默认样式配置 ...
+                    }
+                };
+            }
+
+            this.settings = extension_settings.chat_stylist;
+            this.panel = null;
+            this.isDragging = false;
+            this.isResizing = false;
+            this.touchIdentifier = null;
+        
+            // 初始化角色观察器
+            this.setupCharacterObserver();
+            this.characterUpdateDebounced = this.debounce(this.updateCharacterList.bind(this), 500);
+
+        } catch (err) {
+            console.error('[Chat Stylist] Failed to initialize ChatStylist:', err);
+            throw err;
+        }
     }
 
     createEditorPanel() {
