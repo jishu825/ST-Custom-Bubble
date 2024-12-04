@@ -1,5 +1,5 @@
+// 修改 Settings.js 中的导入路径
 import { extension_settings } from "../../../../extensions.js";
-import { StyleConfig } from "../models/StyleConfig.js";
 
 export class Settings {
     constructor() {
