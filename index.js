@@ -5,7 +5,7 @@ import { saveSettingsDebounced, eventSource, event_types } from "../../../script
 import { Settings } from "./src/core/Settings.js";
 import { StyleManager } from "./src/core/StyleManager.js";
 import { EventManager } from "./src/core/EventManager.js";
-import { StylePanel } from "./src/ui/components/StylePanel.js";
+import { StylePanel } from "./src/ui/components/StylePreview.js";
 import { StyleConfig } from "./src/models/StyleConfig.js";
 
 class ChatStylist {
