@@ -4,7 +4,15 @@
     "requires": [],
     "optional": [],
     "js": "index.js",
-    "css": "styles/main.css",
+    "css": [
+        "styles/main.css",
+        "styles/components/colorPicker.css",
+        "styles/components/stylePanel.css", 
+        "styles/components/tabControl.css",
+        "styles/editor/layout.css",
+        "styles/editor/controls.css",
+        "styles/editor/preview.css"
+    ],
     "author": "既殊",
     "version": "1.0.0",
     "homePage": "https://github.com/jishu825/SillyTavern-Chat-Stylist",
