@@ -98,9 +98,25 @@
 
 /* 面板内容 */
 .panel-content {
+    max-height: calc(80vh - 45px); /* 确保内容不超出屏幕，高度根据屏幕计算 */
+    overflow-y: auto; /* 添加垂直滚动条 */
+    overflow-x: hidden; /* 隐藏水平滚动条 */
     padding: 15px;
-    height: calc(100% - 45px);
-    overflow-y: auto;
+    padding-right: 10px; /* 为滚动条预留内边距 */
+}
+
+/* 自定义滚动条样式 */
+.panel-content::-webkit-scrollbar {
+    width: 5px;
+}
+
+.panel-content::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.panel-content::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 5px;
 }
 
 /* 控件组 */
@@ -323,15 +339,19 @@ select.form-control {
 /* 移动设备适配 */
 @media (max-width: 768px) {
     .chat-stylist-panel {
-        top: 20%; 
-        left: 50%;
-        transform: translate(-50%, 0); 
+        top: 20%;
+        right: 5%; /* 改为右侧对齐 */
+        left: auto; /* 移除left定位 */
+        transform: none; /* 移除transform样式 */
         width: 90%;
         max-width: 320px;
         max-height: 70vh;
     }
 
-    .padding-controls {
-        grid-template-columns: 1fr;
+    /* 拖动状态的样式优化 */
+    .chat-stylist-panel.dragging {
+        transition: none !important;
+        user-select: none;
+        -webkit-user-select: none;
     }
 }
