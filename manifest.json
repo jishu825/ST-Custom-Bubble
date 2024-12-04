@@ -10,5 +10,8 @@
     "homePage": "https://github.com/jishu825/SillyTavern-Chat-Stylist",
     "auto_update": true,
     "extension_api_version": 1,
-    "api_version": 1
+    "api_version": 1,
+    "dependencies": {
+        "toolcool-color-picker": "1.0.0"
+    }
 }
