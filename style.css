@@ -1,8 +1,30 @@
-/* 基础样式 */
+/* 扩展设置面板样式 */
 #chat-stylist-settings {
     margin: 10px 0;
 }
 
-.chat-stylist-toggle {
+/* 编辑器按钮样式 */
+#chat-stylist-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
     margin: 10px 0;
+}
+
+#chat-stylist-button i {
+    font-size: 1em;
+}
+
+/* 预留编辑器面板样式 */
+.chat-stylist-editor {
+    display: none;
+    position: fixed;
+    top: 50px;
+    right: 20px;
+    background: var(--SmartThemeBlurTintColor);
+    border: 1px solid var(--SmartThemeBorderColor);
+    border-radius: 10px;
+    padding: 15px;
+    z-index: 10000;
 }
