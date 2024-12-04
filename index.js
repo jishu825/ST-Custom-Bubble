@@ -1,83 +1,57 @@
-// index.js
-import { EventManager } from './src/core/EventManager.js';
-import { StyleManager } from './src/core/StyleManager.js';
-import { UIManager } from './src/ui/UIManager.js';
-import { Settings } from './src/core/Settings.js';
+import { extension_settings } from "../../extensions.js";
+import { saveSettingsDebounced } from "../../../script.js";
 
-class ChatStylist {
-    constructor() {
-        this.eventManager = new EventManager();
-        this.settings = new Settings();
-        this.styleManager = new StyleManager(this.eventManager);
-        this.uiManager = new UIManager(this.eventManager);
-        
-        this.initialize();
-    }
-
-    initialize() {
-        // 注册全局事件处理
-        this.registerEventHandlers();
-        
-        // 加载保存的样式
-        this.loadSavedStyles();
-        
-        // 应用初始样式
-        this.applyInitialStyles();
-    }
-
-    registerEventHandlers() {
-        // 样式变更处理
-        this.eventManager.on(EventTypes.UI_COLOR_CHANGED, (data) => {
-            const { id, color, alpha } = data;
-            const currentCharId = this.styleManager.getCurrentCharacterId();
-            if (currentCharId) {
-                this.styleManager.updateStyleProperty(currentCharId, id, { color, alpha });
-            }
-        });
-
-        // 样式保存处理
-        this.eventManager.on(EventTypes.UI_SAVE_REQUESTED, () => {
-            this.styleManager.saveCurrentStyle();
-        });
-
-        // 样式重置处理
-        this.eventManager.on(EventTypes.UI_RESET_REQUESTED, () => {
-            if (confirm('确定要重置当前样式吗？')) {
-                this.styleManager.resetCurrentStyle();
-            }
-        });
-
-        // 实时预览处理
-        this.eventManager.on(EventTypes.UI_PREVIEW_REQUESTED, (styleConfig) => {
-            const currentCharId = this.styleManager.getCurrentCharacterId();
-            if (currentCharId) {
-                this.styleManager.previewStyle(currentCharId, styleConfig);
-            }
-        });
-    }
-
-    loadSavedStyles() {
-        const savedStyles = this.settings.getAllStyles();
-        for (const [charId, style] of Object.entries(savedStyles)) {
-            this.styleManager.loadStyle(charId, style);
+// 初始化设置
+const defaultSettings = {
+    enabled: true,
+    styles: {},
+    defaultStyle: {
+        background: {
+            type: 'solid',
+            color: 'rgba(254, 222, 169, 0.5)'
+        },
+        text: {
+            main: 'rgba(0, 0, 0, 1)',
+            italics: 'rgba(128, 128, 128, 1)',
+            quote: '#3388ff'
         }
     }
+};
 
-    applyInitialStyles() {
-        // 应用默认样式到现有消息
-        document.querySelectorAll('.mes').forEach(message => {
-            const characterId = message.dataset.character;
-            if (characterId) {
-                const style = this.styleManager.getCharacterStyle(characterId);
-                if (style) {
-                    this.styleManager.applyStyle(characterId, style);
-                }
-            }
-        });
-    }
+// 添加扩展设置
+function addSettings() {
+    const html = `
+        <div id="chat-stylist-settings">
+            <div class="inline-drawer">
+                <div class="inline-drawer-toggle inline-drawer-header">
+                    <b>Chat Stylist</b>
+                    <div class="inline-drawer-icon fa-solid fa-circle-chevron-down"></div>
+                </div>
+                <div class="inline-drawer-content">
+                    <div class="chat-stylist-toggle">
+                        <label class="checkbox_label">
+                            <input type="checkbox" id="chat-stylist-enabled">
+                            <span>启用聊天样式</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+
+    $('#extensions_settings2').append(html);
+
+    // 加载设置
+    extension_settings.chat_stylist = extension_settings.chat_stylist || defaultSettings;
+
+    // 绑定事件
+    $('#chat-stylist-enabled').prop('checked', extension_settings.chat_stylist.enabled).on('change', function() {
+        extension_settings.chat_stylist.enabled = !!$(this).prop('checked');
+        saveSettingsDebounced();
+    });
 }
 
 // 初始化扩展
-jQuery(() => {
-    window.chatStylist = new ChatStylist();
+jQuery(async () => {
+    addSettings();
+    console.log('Chat Stylist initialized');
 });
