@@ -66,14 +66,19 @@ this.characterUpdateDebounced = this.debounce(this.updateCharacterList.bind(this
                 </div>
             </div>`;
 
-        $('#extensions_settings2').append(html);
+        const container = document.querySelector('#extensions_settings');
+        if (container) {
+              container.insertAdjacentHTML('beforeend', html);
+          } else {
+              console.error('无法找到拓展设置容器');
+          }
 
-        $('#chat-stylist-button').on('click', () => {
-            this.showEditor();
-        });
-        
-        debug.log('Settings added');
-    }
+          $('#chat-stylist-button').on('click', () => {
+              this.showEditor();
+          });
+    
+          debug.log('Settings added');
+      }
 
     createEditorPanel() {
         if (this.panel) return;
