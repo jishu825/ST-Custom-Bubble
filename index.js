@@ -1,6 +1,7 @@
-import { getContext, saveSettingsDebounced } from '../../../script.js';
-import { extension_settings } from '../../extensions.js';
-import { registerSlashCommand } from '../../../slash-commands.js';
+// 修改导入路径
+import { extension_settings } from "../../../../scripts/extensions.js";
+import { saveSettingsDebounced, getContext } from "../../../../script.js";
+import { registerSlashCommand } from "../../../../slash-commands.js";
 
 // 调试工具
 const debug = {
@@ -740,72 +741,64 @@ setupCharacterObserver() {
 }
 }
 
-// 扩展入口函数
-async function moduleWorker() {
-    const context = getContext();
-    
-    // 注册扩展设置UI
-    const settingsHtml = `
-        <div id="chat-stylist-settings">
-            <div class="inline-drawer">
-                <div class="inline-drawer-toggle inline-drawer-header">
-                    <b>Chat Stylist</b>
-                    <div class="inline-drawer-icon fa-solid fa-circle-chevron-down"></div>
-                </div>
-                <div class="inline-drawer-content">
-                    <label class="checkbox_label">
-                        <input type="checkbox" 
-                               id="chat-stylist-enabled" 
-                               ${extension_settings.chat_stylist.enabled ? 'checked' : ''}>
-                        <span>启用聊天样式编辑器</span>
-                    </label>
-                    <div id="chat-stylist-button" class="menu_button">
-                        <i class="fa-solid fa-palette"></i>
-                        <span class="chat-stylist-label">打开样式编辑器</span>
-                    </div>
-                </div>
-            </div>
-        </div>`;
-
-    // 等待DOM加载完成
-    await waitForElement('#extensions_settings2');
-    $('#extensions_settings2').append(settingsHtml);
-
-    // 绑定事件处理
-    $('#chat-stylist-enabled').on('change', function() {
-        extension_settings.chat_stylist.enabled = !!$(this).prop('checked');
-        saveSettingsDebounced();
-    });
-
-    $('#chat-stylist-button').on('click', function() {
-        if (!extension_settings.chat_stylist.enabled) {
-            toastr.warning('请先启用聊天样式编辑器');
-            return;
-        }
-        window.chatStylist.showEditor();
-    });
-
-    // 注册斜杠命令
-    registerSlashCommand('style', (args) => {
-        if (!extension_settings.chat_stylist.enabled) {
-            toastr.warning('请先启用聊天样式编辑器');
-            return;
-        }
-        window.chatStylist.showEditor();
-    }, [], '打开聊天样式编辑器', true, true);
-
-    // 初始化主类
-    window.chatStylist = new ChatStylist();
-}
-
-// 扩展初始化入口
+// 初始化扩展
 jQuery(async () => {
     try {
-        // 等待SillyTavern核心功能初始化
+        // 在实例化ChatStylist之前先注册模块设置
+        const settingsHtml = `
+            <div id="chat-stylist-settings">
+                <div class="inline-drawer">
+                    <div class="inline-drawer-toggle inline-drawer-header">
+                        <b>Chat Stylist</b>
+                        <div class="inline-drawer-icon fa-solid fa-circle-chevron-down"></div>
+                    </div>
+                    <div class="inline-drawer-content">
+                        <label class="checkbox_label">
+                            <input type="checkbox" 
+                                   id="chat-stylist-enabled" 
+                                   ${extension_settings.chat_stylist?.enabled ? 'checked' : ''}>
+                            <span>启用聊天样式编辑器</span>
+                        </label>
+                        <div id="chat-stylist-button" class="menu_button">
+                            <i class="fa-solid fa-palette"></i>
+                            <span class="chat-stylist-label">打开样式编辑器</span>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+
+        // 等待设置容器加载
         await waitForElement('#extensions_settings2');
-        await moduleWorker();
-        console.log('[Chat Stylist] 扩展已加载');
+        
+        // 添加设置到UI
+        $('#extensions_settings2').append(settingsHtml);
+
+        // 绑定开关事件
+        $('#chat-stylist-enabled').on('change', function() {
+            if (!extension_settings.chat_stylist) {
+                extension_settings.chat_stylist = {};
+            }
+            extension_settings.chat_stylist.enabled = !!$(this).prop('checked');
+            saveSettingsDebounced();
+        });
+
+        // 绑定按钮事件
+        $('#chat-stylist-button').on('click', function() {
+            if (!extension_settings.chat_stylist?.enabled) {
+                toastr.warning('请先启用聊天样式编辑器');
+                return;
+            }
+            if (window.chatStylist) {
+                window.chatStylist.showEditor();
+            }
+        });
+
+        // 初始化主类
+        window.chatStylist = new ChatStylist();
+        
+        console.log('[Chat Stylist] Extension loaded successfully');
+
     } catch (err) {
-        console.error('[Chat Stylist] 扩展加载失败:', err);
+        console.error('[Chat Stylist] Failed to initialize extension:', err);
     }
 });
