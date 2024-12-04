@@ -1,12 +1,11 @@
-import { extension_settings } from "../../../extensions.js";
-import { saveSettingsDebounced } from "../../../../script.js";
-import { eventSource, event_types } from "../../../../script.js";
+import { extension_settings } from "../../extensions.js";
+import { saveSettingsDebounced, eventSource, event_types } from "../../../script.js";
 
-import { Settings } from "./src/core/Settings.js";
-import { StyleManager } from "./src/core/StyleManager.js";
-import { EventManager } from "./src/core/EventManager.js";
-import { StylePanel } from "./src/ui/components/StylePanel.js";
-import { StyleConfig } from "./src/models/StyleConfig.js";
+import { Settings } from "./core/Settings.js";
+import { StyleManager } from "./core/StyleManager.js";
+import { EventManager } from "./core/EventManager.js";
+import { StylePanel } from "./ui/components/StylePanel.js";
+import { StyleConfig } from "./models/StyleConfig.js";
 
 class ChatStylist {
     constructor() {
