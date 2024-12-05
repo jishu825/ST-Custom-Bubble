@@ -13,12 +13,8 @@ class ChatStylist {
             this.settings = this.initSettings();
             this.styleManager = this.initStyleManager();
             
-            // 延迟初始化，等待其他组件准备就绪
-            setTimeout(() => {
-                this.initialize();
-            }, 1000);
-            
-            console.debug('ChatStylist: Initialized successfully');
+            // 改为在构造函数中不立即初始化
+            console.debug('ChatStylist: Created successfully');
         } catch (error) {
             console.error('ChatStylist initialization failed:', error);
             throw error;
@@ -169,10 +165,29 @@ class ChatStylist {
 // 初始化扩展
 jQuery(async () => {
     try {
-        // 延迟初始化，等待 ST 框架加载完成
-        setTimeout(() => {
-            window.chatStylist = new ChatStylist();
-        }, 1000);
+        // 创建实例
+        window.chatStylist = new ChatStylist();
+        
+        // 等待 eventSource 可用
+        const waitForEventSource = async () => {
+            const maxAttempts = 20;  // 最多等待10秒（20次 * 500ms）
+            let attempts = 0;
+            
+            while(attempts < maxAttempts) {
+                if(window.eventSource) {
+                    console.debug('ChatStylist: eventSource is ready');
+                    window.chatStylist.initialize();
+                    return;
+                }
+                
+                await new Promise(resolve => setTimeout(resolve, 500));
+                attempts++;
+            }
+            
+            console.error('ChatStylist: eventSource not available after waiting');
+        };
+
+        await waitForEventSource();
     } catch (error) {
         console.error('Failed to initialize Chat Stylist:', error);
     }
