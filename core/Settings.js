@@ -1,4 +1,3 @@
-// 修改 Settings.js 中的导入路径
 import { extension_settings } from "../../../../extensions.js";
 
 export class Settings {
