@@ -1,4 +1,3 @@
-// ui/components/TabControl.js
 import { DOMUtils } from "../../utils/DOMUtils.js";
 
 export class TabControl {
