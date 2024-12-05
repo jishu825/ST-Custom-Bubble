@@ -23,10 +23,9 @@ export class ColorPicker {
             container.appendChild(label);
         }
 
-        // 创建取色器容器
         const pickerContainer = DOMUtils.createElement('div', 'color-picker-container');
         
-        // 添加取色器组件
+        // 创建取色器组件
         const saturation = document.createElement('toolcool-color-picker-saturation');
         const hue = document.createElement('toolcool-color-picker-hue');
         const alpha = document.createElement('toolcool-color-picker-alpha');
@@ -38,7 +37,6 @@ export class ColorPicker {
             component.setAttribute('cid', this.options.id);
         });
 
-        // 添加到容器
         pickerContainer.appendChild(saturation);
         pickerContainer.appendChild(hue);
         if (this.options.showAlpha) {
@@ -49,14 +47,12 @@ export class ColorPicker {
         container.appendChild(pickerContainer);
         this.element = container;
 
-        // 绑定事件监听
         this.bindEvents();
 
         return container;
     }
 
     bindEvents() {
-        // 监听颜色变化事件
         this.element.addEventListener('color-change', (event) => {
             this.value = event.detail.color;
             if (this.options.onChange) {
