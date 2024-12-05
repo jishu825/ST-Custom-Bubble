@@ -59,39 +59,52 @@ class ChatStylist {
         }
     }
 
-    addSettingsUI() {
-        const settingsHtml = `
-            <div id="chat-stylist-settings">
-                <div class="inline-drawer">
-                    <div class="inline-drawer-toggle inline-drawer-header">
-                        <b>Chat Stylist</b>
-                        <div class="inline-drawer-icon fa-solid fa-circle-chevron-down"></div>
-                    </div>
-                    <div class="inline-drawer-content">
-                        <div class="chat-stylist-controls">
-                            <button id="chat-stylist-editor" class="menu_button">
-                                <i class="fa-solid fa-palette"></i>
-                                <span>样式编辑器</span>
+addSettingsUI() {
+    const settingsHtml = `
+        <div id="chat-stylist-settings">
+            <div class="inline-drawer">
+                <div class="inline-drawer-toggle inline-drawer-header">
+                    <b>Chat Stylist</b>
+                    <div class="inline-drawer-icon fa-solid fa-circle-chevron-down"></div>
+                </div>
+                <div class="inline-drawer-content">
+                    <div class="chat-stylist-controls">
+                        <button id="chat-stylist-editor" class="menu_button">
+                            <i class="fa-solid fa-palette"></i>
+                            <span>样式编辑器</span>
+                        </button>
+                        <div class="flex-container">
+                            <button id="chat-stylist-import" class="menu_button" title="导入样式">
+                                <i class="fa-solid fa-file-import"></i>
                             </button>
-                            <div class="flex-container">
-                                <button id="chat-stylist-import" class="menu_button" title="导入样式">
-                                    <i class="fa-solid fa-file-import"></i>
-                                </button>
-                                <button id="chat-stylist-export" class="menu_button" title="导出样式">
-                                    <i class="fa-solid fa-file-export"></i>
-                                </button>
-                                <button id="chat-stylist-reset" class="menu_button" title="重置样式">
-                                    <i class="fa-solid fa-rotate-left"></i>
-                                </button>
-                            </div>
+                            <button id="chat-stylist-export" class="menu_button" title="导出样式">
+                                <i class="fa-solid fa-file-export"></i>
+                            </button>
+                            <button id="chat-stylist-reset" class="menu_button" title="重置样式">
+                                <i class="fa-solid fa-rotate-left"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
-            </div>`;
+            </div>
+        </div>`;
 
-        $('#extensions_settings2').append(settingsHtml);
-        this.bindSettingsControls();
-    }
+    $('#extensions_settings2').append(settingsHtml);
+
+    // 绑定悬浮面板的事件
+    $('#chat-stylist-editor').on('click', () => {
+        this.showStyleEditor(); // 点击时显示面板
+    });
+
+    // 导入、导出、重置等其他功能
+    $('#chat-stylist-import').on('click', () => this.importStyles());
+    $('#chat-stylist-export').on('click', () => this.exportStyles());
+    $('#chat-stylist-reset').on('click', () => {
+        if (confirm('确定要重置所有样式设置吗？')) {
+            this.resetStyles();
+        }
+    });
+}
 
     bindSettingsControls() {
         $('#chat-stylist-editor').on('click', () => {
