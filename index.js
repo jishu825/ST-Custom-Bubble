@@ -8,8 +8,6 @@ import { EventManager } from "./core/EventManager.js";
 import { StylePanel } from "./ui/components/StylePreview.js";
 import { StyleConfig } from "./models/StyleConfig.js";
 
-// ... 类实现部分保持不变
-
 class ChatStylist {
     constructor() {
         try {
