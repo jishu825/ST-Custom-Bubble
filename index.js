@@ -179,30 +179,54 @@ addSettingsUI() {
 showStyleEditor() {
     console.debug('Style editor button clicked');
 
-    // 如果已经创建了面板，直接显示
+    // 如果面板已创建，直接显示
     if (this.styleEditor) {
         console.debug('Reusing existing style editor');
-        this.styleEditor.show();
+        this.styleEditor.classList.add('show');
         return;
     }
 
     console.debug('Creating new style editor');
 
-    // 创建新的悬浮面板
-    this.styleEditor = new StylePanel({
-        initialStyle: {}, // 传入默认样式
-        onSave: (style) => {
-            console.debug('Style saved:', style);
-        },
-        onClose: () => {
-            console.debug('Style editor closed');
-            this.styleEditor.hide();
-        }
+    // 创建主容器
+    const editorContainer = document.createElement('div');
+    editorContainer.id = 'style-editor-container';
+    editorContainer.className = 'chat-stylist-editor';
+    editorContainer.style.display = 'flex';
+
+    // 使用 TabControl 创建标签页
+    const tabControl = new TabControl({
+        tabs: [
+            { id: 'bubble', label: '气泡样式', icon: 'fa-solid fa-message' },
+            { id: 'text', label: '文本样式', icon: 'fa-solid fa-font' },
+        ],
+        onTabChanged: (tabId) => console.debug(`Tab changed to: ${tabId}`),
     });
 
-    // 插入面板到页面
-    document.body.appendChild(this.styleEditor.createElement());
-    this.styleEditor.show();
+    // 创建 BubblePanel 和 TextPanel
+    const bubblePanel = new BubblePanel({
+        initialStyle: {}, // 提供初始样式
+        onChange: (style) => console.debug('Bubble style changed:', style),
+    });
+
+    const textPanel = new TextPanel({
+        initialStyle: {}, // 提供初始样式
+        onChange: (style) => console.debug('Text style changed:', style),
+    });
+
+    // 将标签页内容加入到标签控制器
+    tabControl.setTabContent('bubble', bubblePanel.createElement());
+    tabControl.setTabContent('text', textPanel.createElement());
+
+    // 插入到主容器
+    editorContainer.appendChild(tabControl.createElement());
+
+    // 显示到页面
+    document.body.appendChild(editorContainer);
+
+    // 保存引用并显示
+    this.styleEditor = editorContainer;
+    editorContainer.classList.add('show');
 }
 
     importStyles() {
