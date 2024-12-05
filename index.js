@@ -3,19 +3,21 @@ if (typeof jQuery === 'undefined') {
     throw new Error('jQuery is required for Chat Stylist extension');
 }
 
-// 不要使用 import，改用全局变量的方式
 class ChatStylist {
     constructor() {
         try {
             this.MODULE_NAME = 'chat_stylist';
-            // 等待 extension_settings 初始化完成
             if (!window.extension_settings) {
                 window.extension_settings = {};
             }
             this.settings = this.initSettings();
             this.styleManager = this.initStyleManager();
             
-            this.initialize();
+            // 延迟初始化，等待其他组件准备就绪
+            setTimeout(() => {
+                this.initialize();
+            }, 1000);
+            
             console.debug('ChatStylist: Initialized successfully');
         } catch (error) {
             console.error('ChatStylist initialization failed:', error);
@@ -31,7 +33,6 @@ class ChatStylist {
             chatStyles: {}
         };
 
-        // 初始化设置
         if (!window.extension_settings[this.MODULE_NAME]) {
             window.extension_settings[this.MODULE_NAME] = defaultSettings;
         }
@@ -53,6 +54,28 @@ class ChatStylist {
             console.debug('ChatStylist: Initialization complete');
         } catch (error) {
             console.error('ChatStylist: Initialization failed', error);
+        }
+    }
+
+    bindEvents() {
+        // 检查 eventSource 是否可用
+        if (!window.eventSource) {
+            console.warn('ChatStylist: eventSource not available');
+            return;
+        }
+
+        try {
+            // 使用 window.eventSource 和完整的事件类型路径
+            window.eventSource.on(window.event_types?.CHAT_CHANGED, () => {
+                console.debug('ChatStylist: Chat changed');
+                this.applyStylesToChat();
+            });
+
+            window.eventSource.on(window.event_types?.SETTINGS_UPDATED, () => {
+                this.applyStylesToChat();
+            });
+        } catch (error) {
+            console.error('ChatStylist: Failed to bind events:', error);
         }
     }
 
@@ -110,23 +133,18 @@ class ChatStylist {
         });
     }
 
-    bindEvents() {
-        eventSource.on(event_types.CHAT_CHANGED, () => {
-            console.debug('ChatStylist: Chat changed');
-            this.applyStylesToChat();
-        });
-
-        eventSource.on(event_types.SETTINGS_UPDATED, () => {
-            this.applyStylesToChat();
-        });
-    }
-
     applyStylesToChat() {
-        if (!this.settings.enabled) return;
+        try {
+            if (!this.settings.enabled) return;
 
-        let styles = '';
-        // 应用样式逻辑
-        this.styleManager.textContent = styles;
+            let styles = '';
+            // 应用样式逻辑
+            if (this.styleManager && this.styleManager.textContent !== undefined) {
+                this.styleManager.textContent = styles;
+            }
+        } catch (error) {
+            console.error('ChatStylist: Failed to apply styles:', error);
+        }
     }
 
     showStyleEditor() {
@@ -151,18 +169,10 @@ class ChatStylist {
 // 初始化扩展
 jQuery(async () => {
     try {
-        // 确保 extension_settings 已初始化
-        if (!window.extension_settings) {
-            window.extension_settings = {};
-        }
-        window.chatStylist = new ChatStylist();
-        
-        // 使用全局 eventSource
-        if (window.eventSource) {
-            window.eventSource.once(event_types.APP_READY, () => {
-                window.chatStylist.applyStylesToChat();
-            });
-        }
+        // 延迟初始化，等待 ST 框架加载完成
+        setTimeout(() => {
+            window.chatStylist = new ChatStylist();
+        }, 1000);
     } catch (error) {
         console.error('Failed to initialize Chat Stylist:', error);
     }
