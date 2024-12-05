@@ -4,6 +4,10 @@ if (typeof jQuery === 'undefined') {
     throw new Error('jQuery is required for Chat Stylist extension');
 }
 
+import { Settings } from "./core/Settings.js";
+import { StyleManager } from "./core/StyleManager.js";
+import { EventManager } from "./core/EventManager.js";
+
 class ChatStylist {
     constructor() {
         try {
