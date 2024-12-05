@@ -1,6 +1,7 @@
-import { saveSettingsDebounced } from "../../../../script.js";
+import { saveSettingsDebounced } from "../../../../../script.js";
 import { StyleConfig } from "../models/StyleConfig.js";
 import { EventTypes } from "./EventManager.js";
+import { ColorUtils } from "../utils/ColorUtils.js";
 
 export class StyleManager {
     constructor(settings, eventManager) {
