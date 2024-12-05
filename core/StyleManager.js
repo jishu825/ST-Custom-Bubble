@@ -1,4 +1,4 @@
-import { saveSettingsDebounced } from "../../../../../script.js";
+import { saveSettingsDebounced } from "../../../../script.js";
 import { StyleConfig } from "../models/StyleConfig.js";
 import { EventTypes } from "./EventManager.js";
 import { ColorUtils } from "../utils/ColorUtils.js";
@@ -15,7 +15,6 @@ export class StyleManager {
     }
 
     initializeEvents() {
-        // 监听事件示例
         this.eventManager.on(EventTypes.STYLE_CHANGED, (data) => {
             this.applyStyle(data.target, data.style);
         });
@@ -108,9 +107,6 @@ export class StyleManager {
         });
     }
 
-    /**
-     * 应用样式到当前聊天中的所有消息
-     */
     applyStylesToChat() {
         if (!this.settings.enabled) return;
 
@@ -120,13 +116,7 @@ export class StyleManager {
         });
     }
 
-    /**
-     * 保存特定角色的样式
-     * @param {string} characterId 
-     * @param {StyleConfig} style 
-     */
     saveCharacterStyle(characterId, style) {
-        // 验证style是否合法
         if (!(style instanceof StyleConfig)) {
             throw new Error('Invalid style configuration');
         }
@@ -134,7 +124,6 @@ export class StyleManager {
         this.settings.setCharacterStyle(characterId, style);
         saveSettingsDebounced();
         
-        // 应用新样式并通知其他组件
         this.applyStylesToChat();
         this.eventManager.emit(EventTypes.STYLE_APPLIED, {
             characterId,
@@ -142,9 +131,6 @@ export class StyleManager {
         });
     }
 
-    /**
-     * 重置所有样式到默认状态
-     */
     resetStyles() {
         this.settings.reset();
         saveSettingsDebounced();
