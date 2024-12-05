@@ -1,13 +1,14 @@
-// 修改导入路径
 import { saveSettingsDebounced, eventSource, event_types } from "../../../../script.js";
 import { extension_settings } from "../../../extensions.js";
 
-// 修改本地模块导入
+// 修改本地模块导入 
 import { Settings } from "./core/Settings.js";
-import { StyleManager } from "./core/StyleManager.js"; 
+import { StyleManager } from "./core/StyleManager.js";
 import { EventManager } from "./core/EventManager.js";
 import { StylePanel } from "./ui/components/StylePreview.js";
 import { StyleConfig } from "./models/StyleConfig.js";
+
+// ... 类实现部分保持不变
 
 class ChatStylist {
     constructor() {
