@@ -7,6 +7,7 @@ if (typeof jQuery === 'undefined') {
 import { Settings } from "./core/Settings.js";
 import { StyleManager } from "./core/StyleManager.js";
 import { EventManager } from "./core/EventManager.js";
+import { TabControl } from './ui/components/TabControl.js';
 
 class ChatStylist {
     constructor() {
