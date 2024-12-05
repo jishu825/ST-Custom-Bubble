@@ -176,18 +176,23 @@ addSettingsUI() {
         }
     }
 
-    showStyleEditor() {
+showStyleEditor() {
     console.debug('Style editor button clicked');
 
-    // 检查是否已经存在面板
+    // 如果面板已经存在，直接显示
     if (this.styleEditor) {
-        this.styleEditor.show();
+        console.debug('Reusing existing style editor');
+        this.styleEditor.classList.add('show');
         return;
     }
 
-    // 动态加载悬浮面板
+    console.debug('Creating new style editor');
+
+    // 创建面板的 DOM 元素
     const editorContainer = document.createElement('div');
     editorContainer.id = 'style-editor-container';
+    editorContainer.className = 'chat-stylist-editor'; // 样式类名
+    editorContainer.style.display = 'flex';
 
     // 使用 TabControl.js 创建标签页
     const tabControl = new TabControl({
@@ -214,9 +219,12 @@ addSettingsUI() {
     tabControl.setTabContent('bubble', bubblePanel.createElement());
     tabControl.setTabContent('text', textPanel.createElement());
 
-    // 插入到 DOM 并显示
+    // 插入到 DOM 并保存引用
     document.body.appendChild(editorContainer);
     this.styleEditor = editorContainer;
+
+    // 显示面板
+    editorContainer.classList.add('show');
 }
 
     importStyles() {
