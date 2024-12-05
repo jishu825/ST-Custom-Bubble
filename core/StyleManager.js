@@ -97,12 +97,16 @@ export class StyleManager {
     }
 
     applyStylesToChat() {
-        if (!this.settings.enabled) return;
+        try {
+            if (!this.settings.enabled) return;
 
-        document.querySelectorAll('.mes').forEach(messageElement => {
-            const style = this.getStyleForMessage(messageElement);
-            this.applyStyleToMessage(messageElement, style);
-        });
+            document.querySelectorAll('.mes').forEach(messageElement => {
+                const style = this.getStyleForMessage(messageElement);
+                this.applyStyleToMessage(messageElement, style);
+            });
+        } catch (error) {
+            console.error('ChatStylist: Failed to apply styles:', error);
+        }
     }
 
     saveCharacterStyle(characterId, style) {
