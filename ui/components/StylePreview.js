@@ -1,7 +1,5 @@
-import { DOMUtils } from "../../utils/DOMUtils.js";
-import { TabControl } from "./TabControl.js";
-import { BubblePanel } from "../panels/BubblePanel.js";
-import { TextPanel } from "../panels/TextPanel.js";
+import { StyleManager } from "../../core/StyleManager.js";
+import { StylePanel } from "../components/StylePanel.js";
 
 export class StylePanel {
     constructor(options = {}) {
