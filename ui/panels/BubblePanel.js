@@ -1,4 +1,3 @@
-// ui/panels/BubblePanel.js
 import { DOMUtils } from "../../utils/DOMUtils.js";
 import { ColorPicker } from "../components/ColorPicker.js";
 
