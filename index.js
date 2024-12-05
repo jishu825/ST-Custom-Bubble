@@ -180,51 +180,33 @@ showStyleEditor() {
     console.debug('Style editor button clicked');
 
     // 如果面板已经存在，直接显示
-    if (this.styleEditor) {
+    if (this.styleEditor && this.styleEditor instanceof StylePanel) {
         console.debug('Reusing existing style editor');
-        this.styleEditor.classList.add('show');
+        this.styleEditor.show(); // 调用实例方法显示面板
         return;
     }
 
     console.debug('Creating new style editor');
 
-    // 创建面板的 DOM 元素
-    const editorContainer = document.createElement('div');
-    editorContainer.id = 'style-editor-container';
-    editorContainer.className = 'chat-stylist-editor'; // 样式类名
-    editorContainer.style.display = 'flex';
-
-    // 使用 TabControl.js 创建标签页
-    const tabControl = new TabControl({
-        tabs: [
-            { id: 'bubble', label: '气泡样式', icon: 'fa-solid fa-message' },
-            { id: 'text', label: '文本样式', icon: 'fa-solid fa-font' },
-        ],
-        onTabChanged: (tabId) => console.debug(`Tab changed to: ${tabId}`),
+    // 创建新的 StylePanel 实例
+    const stylePanel = new StylePanel({
+        onSave: (style) => {
+            console.debug('Style saved:', style);
+            // 保存样式逻辑
+        },
+        onClose: () => {
+            console.debug('Style editor closed');
+            this.styleEditor.hide();
+        },
+        initialStyle: {} // 可以传入默认样式
     });
 
-    // 创建 BubblePanel 和 TextPanel
-    const bubblePanel = new BubblePanel({
-        initialStyle: {}, // 提供初始样式
-        onChange: (style) => console.debug('Bubble style changed:', style),
-    });
+    // 保存实例引用
+    this.styleEditor = stylePanel;
 
-    const textPanel = new TextPanel({
-        initialStyle: {}, // 提供初始样式
-        onChange: (style) => console.debug('Text style changed:', style),
-    });
-
-    // 添加到面板中
-    editorContainer.appendChild(tabControl.createElement());
-    tabControl.setTabContent('bubble', bubblePanel.createElement());
-    tabControl.setTabContent('text', textPanel.createElement());
-
-    // 插入到 DOM 并保存引用
-    document.body.appendChild(editorContainer);
-    this.styleEditor = editorContainer;
-
-    // 显示面板
-    editorContainer.classList.add('show');
+    // 将面板插入 DOM 并显示
+    document.body.appendChild(stylePanel.createElement());
+    stylePanel.show();
 }
 
     importStyles() {
