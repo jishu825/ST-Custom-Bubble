@@ -1,34 +1,45 @@
-// 修改外部依赖的导入路径
-import { extension_settings } from "../../../extensions.js";
+// 修改导入路径
 import { saveSettingsDebounced, eventSource, event_types } from "../../../../script.js";
+import { extension_settings } from "../../../extensions.js";
 
-// 修改本地模块的导入路径
-import { Settings } from "./src/core/Settings.js";
-import { StyleManager } from "./src/core/StyleManager.js";
-import { EventManager } from "./src/core/EventManager.js";
-import { StylePanel } from "./src/ui/components/StylePreview.js";
-import { StyleConfig } from "./src/models/StyleConfig.js";
+// 修改本地模块导入
+import { Settings } from "./core/Settings.js";
+import { StyleManager } from "./core/StyleManager.js"; 
+import { EventManager } from "./core/EventManager.js";
+import { StylePanel } from "./ui/components/StylePreview.js";
+import { StyleConfig } from "./models/StyleConfig.js";
 
 class ChatStylist {
     constructor() {
-        // 初始化核心组件
-        this.eventManager = new EventManager();
-        this.settings = new Settings();
-        this.styleManager = new StyleManager(this.settings, this.eventManager);
-        this.stylePanel = null;
+        try {
+            // 初始化核心组件
+            this.eventManager = new EventManager();
+            this.settings = new Settings();
+            this.styleManager = new StyleManager(this.settings, this.eventManager);
+            this.stylePanel = null;
 
-        // 初始化
-        this.initialize();
+            // 初始化
+            this.initialize();
+            console.debug('ChatStylist: Initialized successfully');
+        } catch (error) {
+            console.error('ChatStylist initialization failed:', error);
+            throw error;
+        }
     }
 
     initialize() {
-        // 添加设置UI
-        this.addSettings();
-        
-        // 绑定ST的事件监听
-        this.bindEvents();
+        console.debug('ChatStylist: Initializing...');
+        try {
+            // 添加设置UI
+            this.addSettings();
+            
+            // 绑定事件 
+            this.bindEvents();
 
-        console.log('Chat Stylist initialized');
+            console.debug('ChatStylist: Initialization complete');
+        } catch (error) {
+            console.error('ChatStylist: Initialization failed', error);
+        }
     }
 
     addSettings() {
@@ -82,7 +93,7 @@ class ChatStylist {
             this.exportStyles();
         });
 
-        // 重置按钮
+        // 重置按钮 
         $('#chat-stylist-reset').on('click', () => {
             if (confirm('确定要重置所有样式设置吗？')) {
                 this.resetStyles();
@@ -93,10 +104,11 @@ class ChatStylist {
     bindEvents() {
         // 监听聊天变更
         eventSource.on(event_types.CHAT_CHANGED, () => {
+            console.debug('ChatStylist: Chat changed');
             this.styleManager.applyStylesToChat();
         });
 
-        // 监听新消息
+        // 监听消息事件
         eventSource.on(event_types.MESSAGE_SENT, () => {
             this.styleManager.applyStylesToChat();
         });
@@ -182,6 +194,15 @@ class ChatStylist {
 }
 
 // 初始化扩展
-jQuery(() => {
-    window.chatStylist = new ChatStylist();
+jQuery(async () => {
+    try {
+        window.chatStylist = new ChatStylist();
+        
+        // 等待APP就绪
+        eventSource.once(event_types.APP_READY, () => {
+            chatStylist.styleManager.applyStylesToChat();
+        });
+    } catch (error) {
+        console.error('Failed to initialize Chat Stylist:', error);
+    }
 });
