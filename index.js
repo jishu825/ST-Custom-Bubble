@@ -179,7 +179,7 @@ addSettingsUI() {
 showStyleEditor() {
     console.debug('Style editor button clicked');
 
-    // 如果面板已创建，直接显示
+    // 如果面板已经存在，直接显示
     if (this.styleEditor) {
         console.debug('Reusing existing style editor');
         this.styleEditor.classList.add('show');
@@ -188,13 +188,13 @@ showStyleEditor() {
 
     console.debug('Creating new style editor');
 
-    // 创建主容器
+    // 创建面板的 DOM 容器
     const editorContainer = document.createElement('div');
     editorContainer.id = 'style-editor-container';
-    editorContainer.className = 'chat-stylist-editor';
+    editorContainer.className = 'chat-stylist-editor'; // 样式类名
     editorContainer.style.display = 'flex';
 
-    // 使用 TabControl 创建标签页
+    // 创建标签页控制器
     const tabControl = new TabControl({
         tabs: [
             { id: 'bubble', label: '气泡样式', icon: 'fa-solid fa-message' },
@@ -203,29 +203,28 @@ showStyleEditor() {
         onTabChanged: (tabId) => console.debug(`Tab changed to: ${tabId}`),
     });
 
-    // 创建 BubblePanel 和 TextPanel
+    // 创建气泡样式面板
     const bubblePanel = new BubblePanel({
         initialStyle: {}, // 提供初始样式
         onChange: (style) => console.debug('Bubble style changed:', style),
     });
 
+    // 创建文本样式面板
     const textPanel = new TextPanel({
         initialStyle: {}, // 提供初始样式
         onChange: (style) => console.debug('Text style changed:', style),
     });
 
-    // 将标签页内容加入到标签控制器
+    // 将标签页和面板添加到容器中
+    editorContainer.appendChild(tabControl.createElement());
     tabControl.setTabContent('bubble', bubblePanel.createElement());
     tabControl.setTabContent('text', textPanel.createElement());
 
-    // 插入到主容器
-    editorContainer.appendChild(tabControl.createElement());
-
-    // 显示到页面
+    // 插入到 DOM 并保存引用
     document.body.appendChild(editorContainer);
-
-    // 保存引用并显示
     this.styleEditor = editorContainer;
+
+    // 显示面板
     editorContainer.classList.add('show');
 }
 
