@@ -59,7 +59,7 @@ export class TextStyle extends BaseStyle {
 
 export class StyleConfig {
     constructor(data = {}) {
-        this.id = data.id || crypto.randomUUID();
+        this.id = data.id || (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2));
         this.name = data.name || '';
         this.bubble = new BubbleStyle(data.bubble);
         this.text = new TextStyle(data.text);
