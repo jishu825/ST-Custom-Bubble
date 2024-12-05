@@ -9,7 +9,7 @@ import { StyleManager } from "./core/StyleManager.js";
 import { EventManager } from "./core/EventManager.js";
 import { TabControl } from './ui/components/TabControl.js';
 import { BubblePanel } from './ui/panels/BubblePanel.js';
-
+import { TextPanel } from './ui/panels/TextPanel.js';
 
 class ChatStylist {
     constructor() {
