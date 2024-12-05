@@ -1,13 +1,17 @@
-// 检查必要依赖
 if (typeof jQuery === 'undefined') {
     console.error('Chat Stylist: jQuery is required but not loaded');
     throw new Error('jQuery is required for Chat Stylist extension');
 }
 
+// 不要使用 import，改用全局变量的方式
 class ChatStylist {
     constructor() {
         try {
             this.MODULE_NAME = 'chat_stylist';
+            // 等待 extension_settings 初始化完成
+            if (!window.extension_settings) {
+                window.extension_settings = {};
+            }
             this.settings = this.initSettings();
             this.styleManager = this.initStyleManager();
             
@@ -28,10 +32,10 @@ class ChatStylist {
         };
 
         // 初始化设置
-        if (!extension_settings[this.MODULE_NAME]) {
-            extension_settings[this.MODULE_NAME] = defaultSettings;
+        if (!window.extension_settings[this.MODULE_NAME]) {
+            window.extension_settings[this.MODULE_NAME] = defaultSettings;
         }
-        return extension_settings[this.MODULE_NAME];
+        return window.extension_settings[this.MODULE_NAME];
     }
 
     initStyleManager() {
@@ -147,7 +151,18 @@ class ChatStylist {
 // 初始化扩展
 jQuery(async () => {
     try {
+        // 确保 extension_settings 已初始化
+        if (!window.extension_settings) {
+            window.extension_settings = {};
+        }
         window.chatStylist = new ChatStylist();
+        
+        // 使用全局 eventSource
+        if (window.eventSource) {
+            window.eventSource.once(event_types.APP_READY, () => {
+                window.chatStylist.applyStylesToChat();
+            });
+        }
     } catch (error) {
         console.error('Failed to initialize Chat Stylist:', error);
     }
