@@ -7,7 +7,6 @@ if (typeof jQuery === 'undefined') {
 class ChatStylist {
     constructor() {
         try {
-            // 初始化核心组件
             this.MODULE_NAME = 'chat_stylist';
             if (!window.extension_settings) {
                 window.extension_settings = {};
