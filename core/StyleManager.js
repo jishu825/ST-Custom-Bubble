@@ -1,8 +1,3 @@
-import { saveSettingsDebounced } from "../../../../script.js";
-import { StyleConfig } from "../models/StyleConfig.js";
-import { EventTypes } from "./EventManager.js";
-import { ColorUtils } from "../utils/ColorUtils.js";
-
 export class StyleManager {
     constructor(settings, eventManager) {
         this.settings = settings;
@@ -24,11 +19,6 @@ export class StyleManager {
         });
     }
 
-    /**
-     * 获取指定消息元素的样式配置
-     * @param {HTMLElement} messageElement 
-     * @returns {StyleConfig}
-     */
     getStyleForMessage(messageElement) {
         const isUser = messageElement.getAttribute('is_user') === 'true';
         const isSystem = messageElement.getAttribute('is_system') === 'true';
@@ -46,11 +36,6 @@ export class StyleManager {
         return style;
     }
 
-    /**
-     * 应用样式到指定消息元素
-     * @param {HTMLElement} messageElement 
-     * @param {StyleConfig} styleConfig 
-     */
     applyStyleToMessage(messageElement, styleConfig) {
         const mesBlock = messageElement.querySelector('.mes_block');
         const mesText = messageElement.querySelector('.mes_text');
@@ -60,7 +45,6 @@ export class StyleManager {
         // 应用气泡样式
         const bubble = styleConfig.bubble.data;
         
-        // 背景样式
         if (bubble.background.type === 'solid') {
             mesBlock.style.background = ColorUtils.hexToRgba(
                 bubble.background.color,
@@ -75,28 +59,19 @@ export class StyleManager {
             );
         }
 
-        // 边框样式
         mesBlock.style.border = `${bubble.border.width}px ${bubble.border.style} ${bubble.border.color}`;
-        
-        // 内边距
         mesBlock.style.padding = `${bubble.padding.top}px ${bubble.padding.right}px ${bubble.padding.bottom}px ${bubble.padding.left}px`;
-
-        // 圆角
         mesBlock.style.borderRadius = bubble.shape === 'round' ? '10px' : 
                                     bubble.shape === 'custom' ? bubble.customBorderRadius : '0';
 
         // 应用文本样式
         const text = styleConfig.text.data;
-        
-        // 主要文本颜色
         mesText.style.color = text.mainColor;
 
-        // 斜体文本颜色
         mesText.querySelectorAll('em, i').forEach(em => {
             em.style.color = text.italicColor;
         });
 
-        // 引用文本样式
         mesText.querySelectorAll('q').forEach(q => {
             q.style.color = text.quoteColor;
             if (text.quoteEffect.enabled) {
@@ -122,7 +97,7 @@ export class StyleManager {
         }
 
         this.settings.setCharacterStyle(characterId, style);
-        saveSettingsDebounced();
+        this.settings.save();
         
         this.applyStylesToChat();
         this.eventManager.emit(EventTypes.STYLE_APPLIED, {
@@ -133,15 +108,11 @@ export class StyleManager {
 
     resetStyles() {
         this.settings.reset();
-        saveSettingsDebounced();
+        this.settings.save();
         this.applyStylesToChat();
         this.eventManager.emit(EventTypes.STYLE_RESET);
     }
 
-    /**
-     * 导出当前所有样式配置
-     * @returns {Object}
-     */
     exportStyles() {
         return {
             defaultStyle: this.settings.getDefaultStyle().toJSON(),
@@ -154,10 +125,6 @@ export class StyleManager {
         };
     }
 
-    /**
-     * 导入样式配置
-     * @param {Object} data 
-     */
     importStyles(data) {
         try {
             if (!data) throw new Error('No data to import');
@@ -187,7 +154,7 @@ export class StyleManager {
             );
 
             // 保存并应用更改
-            saveSettingsDebounced();
+            this.settings.save();
             this.applyStylesToChat();
             this.eventManager.emit(EventTypes.STYLE_CHANGED, styles);
 
