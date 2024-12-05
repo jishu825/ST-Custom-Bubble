@@ -1,3 +1,9 @@
+// 检查必要依赖
+if (typeof jQuery === 'undefined') {
+    console.error('Chat Stylist: jQuery is required but not loaded');
+    throw new Error('jQuery is required for Chat Stylist extension');
+}
+
 // ST框架导入
 import { saveSettingsDebounced, eventSource, event_types } from "../../../../script.js";
 import { extension_settings } from "../../../extensions.js";
