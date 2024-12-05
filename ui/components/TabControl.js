@@ -92,23 +92,3 @@ export class TabControl {
         }
     }
 }
-
-// 使用示例:
-/*
-const tabs = new TabControl({
-    tabs: [
-        {id: 'bubble', label: '气泡样式', icon: 'fa-solid fa-message'},
-        {id: 'text', label: '文本样式', icon: 'fa-solid fa-font'}
-    ],
-    onTabChanged: (tabId) => {
-        console.log('Tab changed to:', tabId);
-    }
-});
-
-const element = tabs.createElement();
-document.body.appendChild(element);
-
-// 设置标签页内容
-tabs.setTabContent('bubble', bubblePanel.createElement());
-tabs.setTabContent('text', textPanel.createElement());
-*/
