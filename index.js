@@ -179,34 +179,30 @@ addSettingsUI() {
 showStyleEditor() {
     console.debug('Style editor button clicked');
 
-    // 如果面板已经存在，直接显示
-    if (this.styleEditor && this.styleEditor instanceof StylePanel) {
+    // 如果已经创建了面板，直接显示
+    if (this.styleEditor) {
         console.debug('Reusing existing style editor');
-        this.styleEditor.show(); // 调用实例方法显示面板
+        this.styleEditor.show();
         return;
     }
 
     console.debug('Creating new style editor');
 
-    // 创建新的 StylePanel 实例
-    const stylePanel = new StylePanel({
+    // 创建新的悬浮面板
+    this.styleEditor = new StylePanel({
+        initialStyle: {}, // 传入默认样式
         onSave: (style) => {
             console.debug('Style saved:', style);
-            // 保存样式逻辑
         },
         onClose: () => {
             console.debug('Style editor closed');
             this.styleEditor.hide();
-        },
-        initialStyle: {} // 可以传入默认样式
+        }
     });
 
-    // 保存实例引用
-    this.styleEditor = stylePanel;
-
-    // 将面板插入 DOM 并显示
-    document.body.appendChild(stylePanel.createElement());
-    stylePanel.show();
+    // 插入面板到页面
+    document.body.appendChild(this.styleEditor.createElement());
+    this.styleEditor.show();
 }
 
     importStyles() {
