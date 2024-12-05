@@ -4,46 +4,85 @@ if (typeof jQuery === 'undefined') {
     throw new Error('jQuery is required for Chat Stylist extension');
 }
 
-// ST框架导入
-import { saveSettingsDebounced, eventSource, event_types } from "../../../../script.js";
-import { extension_settings } from "../../../extensions.js";
+const ChatStylist = (function() {
+    const MODULE_NAME = 'chat_stylist';
+    let styleManager;
+    let settings;
 
-// 本地模块导入
-import { Settings } from "./core/Settings.js";
-import { StyleManager } from "./core/StyleManager.js";
-import { EventManager } from "./core/EventManager.js";
-import { StylePanel } from "./ui/components/StylePreview.js";
-import { StyleConfig } from "./models/StyleConfig.js";
+    // 默认设置
+    const defaultSettings = {
+        enabled: true,
+        styles: {},
+        themeStyles: {},
+        chatStyles: {}
+    };
 
-class ChatStylist {
-    constructor() {
-        try {
-            // 初始化核心组件
-            this.eventManager = new EventManager();
-            this.settings = new Settings();
-            this.styleManager = new StyleManager(this.settings, this.eventManager);
-            this.stylePanel = null;
+    class Settings {
+        constructor() {
+            // 初始化设置
+            this.settings = extension_settings[MODULE_NAME] || defaultSettings;
+            extension_settings[MODULE_NAME] = this.settings;
+        }
 
+        save() {
+            extension_settings[MODULE_NAME] = this.settings;
+            saveSettingsDebounced();
+        }
+    }
+
+    class StyleManager {
+        constructor(settings) {
+            this.settings = settings;
+            this.styleSheet = null;
             this.initialize();
-            console.debug('ChatStylist: Initialized successfully');
-        } catch (error) {
-            console.error('ChatStylist initialization failed:', error);
-            throw error;
+        }
+
+        initialize() {
+            this.styleSheet = document.createElement('style');
+            this.styleSheet.id = 'chat-stylist-styles';
+            document.head.appendChild(this.styleSheet);
+            this.applyStylesToChat();
+        }
+
+        applyStylesToChat() {
+            if (!this.settings.settings.enabled) return;
+
+            // 应用样式逻辑
+            let styles = '';
+            
+            // 全局样式
+            Object.entries(this.settings.settings.styles).forEach(([name, style]) => {
+                if (!style.disabled) {
+                    styles += `/* ${name} */\n${style.css}\n\n`;
+                }
+            });
+
+            // 主题相关样式
+            if (power_user.theme) {
+                const themeStyles = this.settings.settings.themeStyles[power_user.theme] || {};
+                Object.entries(themeStyles).forEach(([name, style]) => {
+                    if (!style.disabled) {
+                        styles += `/* Theme: ${power_user.theme} - ${name} */\n${style.css}\n\n`;
+                    }
+                });
+            }
+
+            // 聊天相关样式
+            const chatId = getCurrentChatId();
+            if (chatId) {
+                const chatStyles = this.settings.settings.chatStyles[chatId] || {};
+                Object.entries(chatStyles).forEach(([name, style]) => {
+                    if (!style.disabled) {
+                        styles += `/* Chat: ${chatId} - ${name} */\n${style.css}\n\n`;
+                    }
+                });
+            }
+
+            this.styleSheet.textContent = styles;
         }
     }
 
-    initialize() {
-        console.debug('ChatStylist: Initializing...');
-        try {
-            this.addSettings();
-            this.bindEvents();
-            console.debug('ChatStylist: Initialization complete');
-        } catch (error) {
-            console.error('ChatStylist: Initialization failed', error);
-        }
-    }
-
-    addSettings() {
+    function addSettingsUI() {
         const settingsHtml = `
             <div id="chat-stylist-settings">
                 <div class="inline-drawer">
@@ -74,119 +113,64 @@ class ChatStylist {
             </div>`;
 
         $('#extensions_settings2').append(settingsHtml);
-        this.bindSettingsControls();
-    }
-
-    bindSettingsControls() {
-        $('#chat-stylist-editor').on('click', () => {
-            this.showStyleEditor();
-        });
-
-        $('#chat-stylist-import').on('click', () => {
-            this.importStyles();
-        });
-
-        $('#chat-stylist-export').on('click', () => {
-            this.exportStyles();
-        });
-
+        
+        // 绑定事件
+        $('#chat-stylist-editor').on('click', showStyleEditor);
+        $('#chat-stylist-import').on('click', importStyles);
+        $('#chat-stylist-export').on('click', exportStyles);
         $('#chat-stylist-reset').on('click', () => {
             if (confirm('确定要重置所有样式设置吗？')) {
-                this.resetStyles();
+                resetStyles();
             }
         });
     }
 
-    bindEvents() {
+    function showStyleEditor() {
+        // TODO: 实现样式编辑器
+        console.log('Style editor clicked');
+    }
+
+    function importStyles() {
+        // TODO: 实现样式导入
+        console.log('Import clicked');
+    }
+
+    function exportStyles() {
+        // TODO: 实现样式导出
+        console.log('Export clicked');
+    }
+
+    function resetStyles() {
+        // TODO: 实现样式重置
+        console.log('Reset clicked');
+    }
+
+    async function initialize() {
+        settings = new Settings();
+        styleManager = new StyleManager(settings);
+        
+        addSettingsUI();
+
+        // 绑定事件
         eventSource.on(event_types.CHAT_CHANGED, () => {
-            console.debug('ChatStylist: Chat changed');
-            this.styleManager.applyStylesToChat();
+            styleManager.applyStylesToChat();
         });
 
-        eventSource.on(event_types.MESSAGE_SENT, () => {
-            this.styleManager.applyStylesToChat();
-        });
-        
-        eventSource.on(event_types.MESSAGE_RECEIVED, () => {
-            this.styleManager.applyStylesToChat();
+        eventSource.on(event_types.SETTINGS_UPDATED, () => {
+            styleManager.applyStylesToChat();
         });
     }
 
-    showStyleEditor() {
-        if (!this.stylePanel) {
-            this.stylePanel = new StylePanel({
-                onSave: (style) => this.handleStyleSave(style),
-                onClose: () => this.hideStyleEditor()
-            });
-        }
-        this.stylePanel.show();
-    }
-
-    hideStyleEditor() {
-        if (this.stylePanel) {
-            this.stylePanel.hide();
-        }
-    }
-
-    handleStyleSave(style) {
-        const currentCharacterId = this.stylePanel.getCurrentCharacterId();
-        this.styleManager.saveCharacterStyle(currentCharacterId, style);
-        this.styleManager.applyStylesToChat();
-        this.hideStyleEditor();
-    }
-
-    async importStyles() {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = '.json';
-        
-        input.onchange = async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            try {
-                const text = await file.text();
-                const data = JSON.parse(text);
-                
-                if (this.styleManager.importStyles(data)) {
-                    toastr.success('样式导入成功');
-                }
-            } catch (error) {
-                console.error('Failed to import styles:', error);
-                toastr.error('样式导入失败');
-            }
-        };
-
-        input.click();
-    }
-
-    exportStyles() {
-        const data = this.styleManager.exportStyles();
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `chat-styles-${new Date().toISOString().split('T')[0]}.json`;
-        a.click();
-
-        URL.revokeObjectURL(url);
-    }
-
-    resetStyles() {
-        this.styleManager.resetStyles();
-        toastr.success('样式已重置');
-    }
-}
+    return {
+        initialize
+    };
+})();
 
 // 初始化扩展
 jQuery(async () => {
     try {
-        window.chatStylist = new ChatStylist();
-        
-        eventSource.once(event_types.APP_READY, () => {
-            chatStylist.styleManager.applyStylesToChat();
-        });
+        await ChatStylist.initialize();
+        console.debug('Chat Stylist: Initialized successfully');
     } catch (error) {
         console.error('Failed to initialize Chat Stylist:', error);
     }
