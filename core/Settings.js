@@ -1,6 +1,3 @@
-import { extension_settings } from "../../../../extensions.js";
-import { StyleConfig } from "../models/StyleConfig.js";
-
 export class Settings {
     constructor() {
         this.defaultSettings = {
@@ -13,8 +10,8 @@ export class Settings {
         };
 
         // 初始化设置
-        this.settings = extension_settings.chat_stylist || this.defaultSettings;
-        extension_settings.chat_stylist = this.settings;
+        this.settings = window.extension_settings.chat_stylist || this.defaultSettings;
+        window.extension_settings.chat_stylist = this.settings;
     }
 
     get enabled() {
@@ -59,6 +56,13 @@ export class Settings {
 
     reset() {
         this.settings = structuredClone(this.defaultSettings);
-        extension_settings.chat_stylist = this.settings;
+        window.extension_settings.chat_stylist = this.settings;
+    }
+
+    save() {
+        window.extension_settings.chat_stylist = this.settings;
+        if (window.saveSettingsDebounced) {
+            window.saveSettingsDebounced();
+        }
     }
 }
