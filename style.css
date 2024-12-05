@@ -1,14 +1,4 @@
-/* 组件样式 */
-@import './ui/styles/components/colorPicker.css';
-@import './ui/styles/components/stylePanel.css';
-@import './ui/styles/components/tabControl.css';
-
-/* 编辑器样式 */
-@import './ui/styles/editor/layout.css';
-@import './ui/styles/editor/controls.css';
-@import './ui/styles/editor/preview.css';
-
-/* 全局样式 */
+/* Chat Stylist 基础样式 */
 .chat-stylist-controls {
     display: flex;
     align-items: center;
@@ -16,17 +6,9 @@
     margin: 10px 0;
 }
 
-#chat-stylist-button {
-    flex: 1;
+.chat-stylist-controls .flex-container {
     display: flex;
-    align-items: center;
     gap: 8px;
-    padding: 8px 16px;
-}
-
-#chat-stylist-defaults {
-    padding: 8px;
-    min-width: 40px;
 }
 
 /* 辅助类 */
