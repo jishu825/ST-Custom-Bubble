@@ -174,8 +174,47 @@ addSettingsUI() {
     }
 
     showStyleEditor() {
-        console.log('Style editor clicked');
+    console.debug('Style editor button clicked');
+
+    // 检查是否已经存在面板
+    if (this.styleEditor) {
+        this.styleEditor.show();
+        return;
     }
+
+    // 动态加载悬浮面板
+    const editorContainer = document.createElement('div');
+    editorContainer.id = 'style-editor-container';
+
+    // 使用 TabControl.js 创建标签页
+    const tabControl = new TabControl({
+        tabs: [
+            { id: 'bubble', label: '气泡样式', icon: 'fa-solid fa-message' },
+            { id: 'text', label: '文本样式', icon: 'fa-solid fa-font' },
+        ],
+        onTabChanged: (tabId) => console.debug(`Tab changed to: ${tabId}`),
+    });
+
+    // 创建 BubblePanel 和 TextPanel
+    const bubblePanel = new BubblePanel({
+        initialStyle: {}, // 提供初始样式
+        onChange: (style) => console.debug('Bubble style changed:', style),
+    });
+
+    const textPanel = new TextPanel({
+        initialStyle: {}, // 提供初始样式
+        onChange: (style) => console.debug('Text style changed:', style),
+    });
+
+    // 添加到面板中
+    editorContainer.appendChild(tabControl.createElement());
+    tabControl.setTabContent('bubble', bubblePanel.createElement());
+    tabControl.setTabContent('text', textPanel.createElement());
+
+    // 插入到 DOM 并显示
+    document.body.appendChild(editorContainer);
+    this.styleEditor = editorContainer;
+}
 
     importStyles() {
         console.log('Import clicked');
