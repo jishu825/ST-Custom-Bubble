@@ -14,12 +14,10 @@ export class ColorUtils {
         const g = parseInt(parts[1]);
         const b = parseInt(parts[2]);
         
-        const toHex = (n) => {
-            const hex = n.toString(16);
+        return '#' + [r, g, b].map(x => {
+            const hex = x.toString(16);
             return hex.length === 1 ? '0' + hex : hex;
-        };
-        
-        return '#' + toHex(r) + toHex(g) + toHex(b);
+        }).join('');
     }
 
     static createGradient(type, colors, positions, angle = 90) {
@@ -27,5 +25,15 @@ export class ColorUtils {
         return type === 'linear'
             ? `linear-gradient(${angle}deg, ${stops})`
             : `radial-gradient(circle, ${stops})`;
+    }
+
+    static getContrastColor(backgroundColor) {
+        const hex = backgroundColor.replace('#', '');
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
+        
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        return brightness > 128 ? '#000000' : '#FFFFFF';
     }
 }
