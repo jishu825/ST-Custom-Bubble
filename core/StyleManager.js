@@ -1,3 +1,7 @@
+import { ColorUtils } from "../utils/ColorUtils.js";
+import { StyleConfig } from "../models/StyleConfig.js";
+import { EventTypes } from "./EventManager.js";
+
 export class StyleManager {
     constructor(settings, eventManager) {
         this.settings = settings;
