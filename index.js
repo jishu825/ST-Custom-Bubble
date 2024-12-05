@@ -111,24 +111,36 @@ class ChatStylist {
     }
 
     bindEvents() {
-        // 延迟绑定事件，等待 eventSource 可用
-        const bindEventSource = () => {
-            if (window.eventSource) {
-                window.eventSource.on('chatChanged', () => {
-                    console.debug('ChatStylist: Chat changed');
-                    this.applyStylesToChat();
-                });
+        const waitForEventSource = async () => {
+            for (let i = 0; i < 20; i++) {
+                if (window.eventSource) {
+                    window.eventSource.on('chatChanged', () => {
+                        console.debug('ChatStylist: Chat changed');
+                        this.applyStylesToChat();
+                    });
 
-                window.eventSource.on('settingsUpdated', () => {
-                    this.applyStylesToChat();
-                });
-            } else {
-                console.warn('ChatStylist: eventSource not available, retrying in 1s');
-                setTimeout(bindEventSource, 1000);
+                    window.eventSource.on('settingsUpdated', () => {
+                        this.applyStylesToChat();
+                    });
+                    
+                    console.debug('ChatStylist: Successfully bound to eventSource');
+                    return;
+                }
+                
+                if (i === 0) {
+                    console.warn('ChatStylist: Waiting for eventSource...');
+                }
+                
+                await new Promise(resolve => setTimeout(resolve, 1000));
             }
+            
+            console.error('ChatStylist: eventSource not available after 20 seconds');
         };
 
-        bindEventSource();
+        // 延迟2秒后开始等待
+        setTimeout(() => {
+            waitForEventSource();
+        }, 2000);
     }
 
     applyStylesToChat() {
