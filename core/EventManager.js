@@ -1,15 +1,8 @@
+// 不需要外部导入，仅需导出
 export const EventTypes = {
-    // 样式相关事件
     STYLE_CHANGED: 'style:changed',
     STYLE_APPLIED: 'style:applied',
-    STYLE_RESET: 'style:reset',
-    
-    // UI相关事件
-    UI_PANEL_OPENED: 'ui:panel:opened',
-    UI_PANEL_CLOSED: 'ui:panel:closed',
-    UI_TAB_CHANGED: 'ui:tab:changed',
-    UI_PREVIEW_REQUESTED: 'ui:preview:requested',
-    UI_STYLE_SAVED: 'ui:style:saved'
+    STYLE_RESET: 'style:reset'
 };
 
 export class EventManager {
