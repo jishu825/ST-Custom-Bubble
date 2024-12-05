@@ -1,10 +1,12 @@
-/* 改为使用相对路径 */
-@import './components/colorPicker.css';
-@import './components/stylePanel.css';
-@import './components/tabControl.css';
-@import './editor/layout.css';
-@import './editor/controls.css';
-@import './editor/preview.css';
+/* 组件样式 */
+@import './ui/styles/components/colorPicker.css';
+@import './ui/styles/components/stylePanel.css';
+@import './ui/styles/components/tabControl.css';
+
+/* 编辑器样式 */
+@import './ui/styles/editor/layout.css';
+@import './ui/styles/editor/controls.css';
+@import './ui/styles/editor/preview.css';
 
 /* 全局样式 */
 .chat-stylist-controls {
