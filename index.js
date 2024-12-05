@@ -1,7 +1,8 @@
+// ST框架导入
 import { saveSettingsDebounced, eventSource, event_types } from "../../../../script.js";
 import { extension_settings } from "../../../extensions.js";
 
-// 修改本地模块导入 
+// 本地模块导入
 import { Settings } from "./core/Settings.js";
 import { StyleManager } from "./core/StyleManager.js";
 import { EventManager } from "./core/EventManager.js";
@@ -17,7 +18,6 @@ class ChatStylist {
             this.styleManager = new StyleManager(this.settings, this.eventManager);
             this.stylePanel = null;
 
-            // 初始化
             this.initialize();
             console.debug('ChatStylist: Initialized successfully');
         } catch (error) {
@@ -29,12 +29,8 @@ class ChatStylist {
     initialize() {
         console.debug('ChatStylist: Initializing...');
         try {
-            // 添加设置UI
             this.addSettings();
-            
-            // 绑定事件 
             this.bindEvents();
-
             console.debug('ChatStylist: Initialization complete');
         } catch (error) {
             console.error('ChatStylist: Initialization failed', error);
@@ -42,7 +38,6 @@ class ChatStylist {
     }
 
     addSettings() {
-        // 创建设置面板HTML
         const settingsHtml = `
             <div id="chat-stylist-settings">
                 <div class="inline-drawer">
@@ -77,22 +72,18 @@ class ChatStylist {
     }
 
     bindSettingsControls() {
-        // 编辑器按钮
         $('#chat-stylist-editor').on('click', () => {
             this.showStyleEditor();
         });
 
-        // 导入按钮
         $('#chat-stylist-import').on('click', () => {
             this.importStyles();
         });
 
-        // 导出按钮
         $('#chat-stylist-export').on('click', () => {
             this.exportStyles();
         });
 
-        // 重置按钮 
         $('#chat-stylist-reset').on('click', () => {
             if (confirm('确定要重置所有样式设置吗？')) {
                 this.resetStyles();
@@ -101,16 +92,15 @@ class ChatStylist {
     }
 
     bindEvents() {
-        // 监听聊天变更
         eventSource.on(event_types.CHAT_CHANGED, () => {
             console.debug('ChatStylist: Chat changed');
             this.styleManager.applyStylesToChat();
         });
 
-        // 监听消息事件
         eventSource.on(event_types.MESSAGE_SENT, () => {
             this.styleManager.applyStylesToChat();
         });
+        
         eventSource.on(event_types.MESSAGE_RECEIVED, () => {
             this.styleManager.applyStylesToChat();
         });
@@ -133,19 +123,13 @@ class ChatStylist {
     }
 
     handleStyleSave(style) {
-        // 保存样式设置
         const currentCharacterId = this.stylePanel.getCurrentCharacterId();
         this.styleManager.saveCharacterStyle(currentCharacterId, style);
-        
-        // 应用新样式
         this.styleManager.applyStylesToChat();
-        
-        // 关闭编辑器
         this.hideStyleEditor();
     }
 
     async importStyles() {
-        // 创建文件选择器
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = '.json';
@@ -158,7 +142,6 @@ class ChatStylist {
                 const text = await file.text();
                 const data = JSON.parse(text);
                 
-                // 导入样式
                 if (this.styleManager.importStyles(data)) {
                     toastr.success('样式导入成功');
                 }
@@ -176,13 +159,11 @@ class ChatStylist {
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         
-        // 创建下载链接
         const a = document.createElement('a');
         a.href = url;
         a.download = `chat-styles-${new Date().toISOString().split('T')[0]}.json`;
         a.click();
 
-        // 清理
         URL.revokeObjectURL(url);
     }
 
@@ -197,7 +178,6 @@ jQuery(async () => {
     try {
         window.chatStylist = new ChatStylist();
         
-        // 等待APP就绪
         eventSource.once(event_types.APP_READY, () => {
             chatStylist.styleManager.applyStylesToChat();
         });
