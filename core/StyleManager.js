@@ -49,6 +49,7 @@ export class StyleManager {
         // 应用气泡样式
         const bubble = styleConfig.bubble.data;
         
+        // 背景样式
         if (bubble.background.type === 'solid') {
             mesBlock.style.background = ColorUtils.hexToRgba(
                 bubble.background.color,
@@ -63,19 +64,28 @@ export class StyleManager {
             );
         }
 
+        // 边框样式
         mesBlock.style.border = `${bubble.border.width}px ${bubble.border.style} ${bubble.border.color}`;
+        
+        // 内边距
         mesBlock.style.padding = `${bubble.padding.top}px ${bubble.padding.right}px ${bubble.padding.bottom}px ${bubble.padding.left}px`;
+
+        // 圆角
         mesBlock.style.borderRadius = bubble.shape === 'round' ? '10px' : 
                                     bubble.shape === 'custom' ? bubble.customBorderRadius : '0';
 
         // 应用文本样式
         const text = styleConfig.text.data;
+        
+        // 主要文本颜色
         mesText.style.color = text.mainColor;
 
+        // 斜体文本颜色
         mesText.querySelectorAll('em, i').forEach(em => {
             em.style.color = text.italicColor;
         });
 
+        // 引用文本样式
         mesText.querySelectorAll('q').forEach(q => {
             q.style.color = text.quoteColor;
             if (text.quoteEffect.enabled) {
