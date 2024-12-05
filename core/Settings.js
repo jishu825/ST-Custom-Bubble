@@ -12,6 +12,9 @@ export class Settings {
         };
 
         // 初始化设置
+        if (!window.extension_settings) {
+            window.extension_settings = {};
+        }
         this.settings = window.extension_settings.chat_stylist || this.defaultSettings;
         window.extension_settings.chat_stylist = this.settings;
     }
