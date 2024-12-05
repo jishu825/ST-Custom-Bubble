@@ -1,14 +1,13 @@
 {
     "display_name": "Chat Stylist",
     "loading_order": 100,
-    "requires": [],
+    "requires": ["jQuery"],
     "optional": [],
     "js": "index.js",
-    "css": "styles/main.css",
+    "css": "style.css",
     "author": "既殊",
     "version": "1.0.0",
     "homePage": "https://github.com/jishu825/SillyTavern-Chat-Stylist",
     "auto_update": true,
-    "extensionPack": false,
     "type": "normal"
 }
