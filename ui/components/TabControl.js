@@ -12,47 +12,48 @@ export class TabControl {
         this.activeTab = this.options.activeTab || (this.options.tabs[0]?.id);
     }
 
-    createElement() {
-        const container = DOMUtils.createElement('div', 'tab-container');
-        
-        // 创建标签按钮
-        const buttonsContainer = DOMUtils.createElement('div', 'tab-buttons');
-        this.options.tabs.forEach(tab => {
-            const button = DOMUtils.createElement('button', 'tab-button');
-            if(tab.id === this.activeTab) {
-                button.classList.add('active');
-            }
+createElement() {
+    const container = DOMUtils.createElement('div', 'tab-container');
 
-            if(tab.icon) {
-                const icon = DOMUtils.createElement('i', tab.icon);
-                button.appendChild(icon);
-            }
+    // 创建标签按钮
+    const buttonsContainer = DOMUtils.createElement('div', 'tab-buttons');
+    this.options.tabs.forEach(tab => {
+        const button = DOMUtils.createElement('button', 'tab-button');
+        if (tab.id === this.activeTab) {
+            button.classList.add('active');
+        }
 
-            const label = document.createTextNode(tab.label);
-            button.appendChild(label);
-            button.dataset.tabId = tab.id;
+        if (tab.icon) {
+            const icon = DOMUtils.createElement('i', tab.icon);
+            button.appendChild(icon);
+        }
 
-            button.addEventListener('click', () => this.switchTab(tab.id));
-            buttonsContainer.appendChild(button);
-        });
+        const label = document.createTextNode(tab.label);
+        button.appendChild(label);
+        button.dataset.tabId = tab.id;
 
-        // 创建内容容器
-        const contentContainer = DOMUtils.createElement('div', 'tab-content-container');
-        this.options.tabs.forEach(tab => {
-            const content = DOMUtils.createElement('div', 'tab-content');
-            content.dataset.tabId = tab.id;
-            if(tab.id === this.activeTab) {
-                content.classList.add('active');
-            }
-            contentContainer.appendChild(content);
-        });
+        button.addEventListener('click', () => this.switchTab(tab.id));
+        buttonsContainer.appendChild(button);
+    });
 
-        container.appendChild(buttonsContainer);
-        container.appendChild(contentContainer);
-        this.element = container;
+    // 创建内容容器
+    const contentContainer = DOMUtils.createElement('div', 'tab-content-container');
+    this.options.tabs.forEach(tab => {
+        const content = DOMUtils.createElement('div', 'tab-content');
+        content.dataset.tabId = tab.id; // 确保设置了 data-tab-id 属性
+        if (tab.id === this.activeTab) {
+            content.classList.add('active');
+        }
+        contentContainer.appendChild(content);
+    });
 
-        return container;
-    }
+    container.appendChild(buttonsContainer);
+    container.appendChild(contentContainer);
+
+    this.element = container;
+
+    return container;
+}
 
     switchTab(tabId) {
         if(tabId === this.activeTab) return;
@@ -74,21 +75,29 @@ export class TabControl {
     }
 
     getContentContainer(tabId) {
+        if (!this.element) {
+            console.error('TabControl element not initialized');
+            return null;
+        }
         return this.element.querySelector(`.tab-content[data-tab-id="${tabId}"]`);
     }
 
     setTabContent(tabId, content) {
         const container = this.getContentContainer(tabId);
-        if(!container) return;
+
+        if (!container) {
+            console.error(`Tab content container not found for tabId: ${tabId}`);
+            return;
+        }
 
         // 清空现有内容
         container.innerHTML = '';
-        
+
         // 添加新内容
-        if(typeof content === 'string') {
+        if (typeof content === 'string') {
             container.innerHTML = content;
-        } else if(content instanceof Node) {
+        } else if (content instanceof Node) {
             container.appendChild(content);
         }
-    }
+}
 }
