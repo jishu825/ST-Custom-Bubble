@@ -1,3 +1,5 @@
+import { StyleConfig } from "../models/StyleConfig.js";
+
 export class Settings {
     constructor() {
         this.defaultSettings = {
