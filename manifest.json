@@ -1,7 +1,7 @@
 {
     "display_name": "Chat Stylist",
     "loading_order": 100,
-    "requires": ["jQuery", "jQuery-ui"],  // 添加必要的依赖
+    "requires": ["jQuery", "jQuery-ui"],  
     "optional": [],
     "js": "index.js",
     "css": "style.css",
