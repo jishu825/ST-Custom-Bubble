@@ -69,7 +69,6 @@ export class StyleUtils {
     static setStyles(element, styles) {
         Object.assign(element.style, styles);
     }
-}
 
     static createKeyframes(name, keyframes) {
         const keyframeRules = Object.entries(keyframes)
