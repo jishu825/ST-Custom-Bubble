@@ -1,4 +1,3 @@
-// 不需要外部导入，仅需导出
 export const EventTypes = {
     STYLE_CHANGED: 'style:changed',
     STYLE_APPLIED: 'style:applied',
