@@ -114,6 +114,17 @@
     background: rgba(0, 0, 0, 0.3);
 }
 
+.resize-handle {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 20px;
+    height: 20px;
+    cursor: se-resize;
+    background: rgba(0, 0, 0, 0.2);
+    border-bottom-right-radius: 10px;
+}
+
 /* 辅助类 */
 .hidden {
     display: none !important;
