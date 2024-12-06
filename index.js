@@ -195,6 +195,11 @@ showStyleEditor() {
     editorContainer.className = 'chat-stylist-editor'; // 样式类名
     editorContainer.style.display = 'flex';
 
+    // 创建拖动条
+    const dragBar = document.createElement('div');
+    dragBar.className = 'drag-bar';
+    editorContainer.appendChild(dragBar);
+    
     // 创建标签页控制器
     const tabControl = new TabControl({
         tabs: [
@@ -229,6 +234,42 @@ showStyleEditor() {
     editorContainer.classList.add('show');
 }
 
+    /**
+ * 使面板可拖动
+ */
+makeDraggable(element, dragHandle) {
+    let isDragging = false;
+    let startX, startY, initialX, initialY;
+
+    dragHandle.style.cursor = 'move'; // 设置鼠标样式
+
+    dragHandle.addEventListener('mousedown', (event) => {
+        isDragging = true;
+        startX = event.clientX;
+        startY = event.clientY;
+        const rect = element.getBoundingClientRect();
+        initialX = rect.left;
+        initialY = rect.top;
+        document.body.style.userSelect = 'none'; // 禁止文本选择
+    });
+
+    document.addEventListener('mousemove', (event) => {
+        if (!isDragging) return;
+        const deltaX = event.clientX - startX;
+        const deltaY = event.clientY - startY;
+        element.style.left = `${initialX + deltaX}px`;
+        element.style.top = `${initialY + deltaY}px`;
+        element.style.transform = 'none'; // 移动后取消初始居中
+    });
+
+    document.addEventListener('mouseup', () => {
+        if (isDragging) {
+            isDragging = false;
+            document.body.style.userSelect = ''; // 恢复文本选择
+        }
+    });
+}
+    
     importStyles() {
         console.log('Import clicked');
     }
