@@ -11,9 +11,8 @@
 /* 悬浮面板主容器 */
 .chat-stylist-editor {
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    top: 20%;
+    left: 20%;/* 默认显示在屏幕的左上角 */
     width: 360px;
     height: 50vh; /* 高度设置为显示屏高度的 50% */
     max-height: 90vh; /* 防止高度超出浏览器窗口 */
@@ -59,10 +58,25 @@
 /* 标签页内容 */
 .tab-content-container {
     flex: 1;
-    overflow-y: auto;
+    overflow-y: auto; /* 启用垂直滚动条 */
     padding: 10px;
     border-radius: 8px;
     background: rgba(0, 0, 0, 0.05);
+    scrollbar-width: thin; /* 窄滚动条 */
+    scrollbar-color: rgba(0, 0, 0, 0.3) transparent; /* 滚动条样式 */
+}
+
+.tab-content-container::-webkit-scrollbar {
+    width: 6px; /* 滚动条宽度 */
+}
+
+.tab-content-container::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.3); /* 滚动条颜色 */
+    border-radius: 3px;
+}
+
+.tab-content-container::-webkit-scrollbar-track {
+    background: transparent; /* 滑轨透明 */
 }
 
 .tab-content {
