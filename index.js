@@ -7,6 +7,7 @@ if (typeof jQuery === 'undefined') {
 import { Settings } from "./core/Settings.js";
 import { StyleManager } from "./core/StyleManager.js";
 import { EventManager } from "./core/EventManager.js";
+import { StylePanel } from "./ui/StylePanel.js";
 import { TabControl } from './ui/components/TabControl.js';
 import { BubblePanel } from './ui/panels/BubblePanel.js';
 import { TextPanel } from './ui/panels/TextPanel.js';
@@ -177,73 +178,16 @@ addSettingsUI() {
         }
     }
 
-showStyleEditor() {
-    console.debug('Style editor button clicked');
-
-    // 如果面板已经存在，直接显示
-    if (this.styleEditor) {
-        console.debug('Reusing existing style editor');
-        this.styleEditor.classList.add('show');
-        return;
+    showStyleEditor() {
+        if (!this.styleEditor) {
+            this.styleEditor = new StylePanel({
+                onSave: (style) => this.saveStyles(style),
+                onReset: () => this.resetStyles(),
+                onClose: () => this.styleEditor.hide(),
+            });
+        }
+        this.styleEditor.show();
     }
-
-    console.debug('Creating new style editor');
-
-    // 创建面板的 DOM 容器
-    const editorContainer = document.createElement('div');
-    editorContainer.id = 'style-editor-container';
-    editorContainer.className = 'chat-stylist-editor'; // 样式类名
-    editorContainer.style.display = 'flex';
-
-    // 创建拖动条
-    const dragBar = document.createElement('div');
-    dragBar.className = 'drag-bar';
-    editorContainer.appendChild(dragBar);
-    
-    // 创建标签页控制器
-    const tabControl = new TabControl({
-        tabs: [
-            { id: 'bubble', label: '气泡样式', icon: 'fa-solid fa-message' },
-            { id: 'text', label: '文本样式', icon: 'fa-solid fa-font' },
-        ],
-        onTabChanged: (tabId) => console.debug(`Tab changed to: ${tabId}`),
-    });
-
-    // 创建气泡样式面板
-    const bubblePanel = new BubblePanel({
-        initialStyle: {}, // 提供初始样式
-        onChange: (style) => console.debug('Bubble style changed:', style),
-    });
-
-    // 创建文本样式面板
-    const textPanel = new TextPanel({
-        initialStyle: {}, // 提供初始样式
-        onChange: (style) => console.debug('Text style changed:', style),
-    });
-
-    // 将标签页和面板添加到容器中
-    editorContainer.appendChild(tabControl.createElement());
-    tabControl.setTabContent('bubble', bubblePanel.createElement());
-    tabControl.setTabContent('text', textPanel.createElement());
-
-    // 插入到 DOM 并保存引用
-    document.body.appendChild(editorContainer);
-    this.styleEditor = editorContainer;
-
-    // 添加拖动功能
-    this.makeDraggable(editorContainer, dragBar);
-
-    // 创建缩放控件
-    const resizeHandle = document.createElement('div');
-    resizeHandle.className = 'resize-handle';
-    editorContainer.appendChild(resizeHandle);
-    
-    // 添加缩放功能
-    this.makeResizable(editorContainer, resizeHandle);
-    
-    // 显示面板
-    editorContainer.classList.add('show');
-}
 
     /**
  * 使面板可拖动
