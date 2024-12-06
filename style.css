@@ -8,25 +8,68 @@
 @import './ui/styles/editor/controls.css';
 @import './ui/styles/editor/preview.css';
 
+/* 悬浮面板主容器 */
 .chat-stylist-editor {
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 400px;
+    width: 360px;
     background: var(--SmartThemeBlurTintColor);
     backdrop-filter: blur(var(--SmartThemeBlurStrength));
     border: 1px solid var(--SmartThemeBorderColor);
     border-radius: 10px;
-    padding: 15px;
+    padding: 10px;
     z-index: 10000;
     display: none;
     flex-direction: column;
-    gap: 15px;
+    gap: 10px;
 }
 
+/* 显示面板 */
 .chat-stylist-editor.show {
     display: flex;
+}
+
+/* 标签页按钮 */
+.tab-buttons {
+    display: flex;
+    justify-content: space-between;
+}
+
+.tab-button {
+    flex: 1;
+    padding: 8px 0;
+    background: transparent;
+    border: none;
+    color: var(--SmartThemeBodyColor);
+    font-size: 0.9em;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+}
+
+.tab-button.active {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* 标签页内容 */
+.tab-content-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    padding: 10px;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
 }
 
 /* 全局样式 */
