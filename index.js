@@ -98,11 +98,8 @@ addSettingsUI() {
         console.error('Cannot find #extensions_settings2 to insert Chat Stylist UI');
         return;
     }
-
-    // 插入设置按钮
-    targetContainer.append(settingsHtml);
     
-    // 将扩展设置添加到页面的设置区域
+    // 将扩展按钮添加到页面的设置区域
     $('#extensions_settings2').append(settingsHtml);
 
     // 绑定悬浮面板的事件
@@ -111,6 +108,7 @@ addSettingsUI() {
     });
 
     // 导入、导出、重置等其他功能
+    $('#chat-stylist-editor').on('click', () => this.showStyleEditor());
     $('#chat-stylist-import').on('click', () => this.importStyles());
     $('#chat-stylist-export').on('click', () => this.exportStyles());
     $('#chat-stylist-reset').on('click', () => {
@@ -119,26 +117,6 @@ addSettingsUI() {
         }
     });
 }
-
-    bindSettingsControls() {
-        $('#chat-stylist-editor').on('click', () => {
-            this.showStyleEditor();
-        });
-
-        $('#chat-stylist-import').on('click', () => {
-            this.importStyles();
-        });
-
-        $('#chat-stylist-export').on('click', () => {
-            this.exportStyles();
-        });
-
-        $('#chat-stylist-reset').on('click', () => {
-            if (confirm('确定要重置所有样式设置吗？')) {
-                this.resetStyles();
-            }
-        });
-    }
 
     bindEvents() {
         const waitForEventSource = async () => {
@@ -203,7 +181,6 @@ showStyleEditor() {
     const editorContainer = document.createElement('div');
     editorContainer.id = 'style-editor-container';
     editorContainer.className = 'chat-stylist-editor'; // 样式类名
-    editorContainer.style.display = 'flex';
 
     // 创建拖动条
     const dragBar = document.createElement('div');
@@ -311,8 +288,13 @@ makeResizable(element, resizeHandle) {
         if (!isResizing) return;
         const deltaX = event.clientX - startX;
         const deltaY = event.clientY - startY;
-        element.style.width = `${startWidth + deltaX}px`;
-        element.style.height = `${startHeight + deltaY}px`;
+
+        // 设置最小宽高和最大宽高
+        const newWidth = Math.max(300, Math.min(startWidth + deltaX, window.innerWidth - 50));
+        const newHeight = Math.max(200, Math.min(startHeight + deltaY, window.innerHeight - 50));
+        
+        element.style.width = `${newWidth}px`;
+        element.style.height = `${newHeight}px`;
     });
 
     document.addEventListener('mouseup', () => {
