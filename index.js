@@ -230,6 +230,12 @@ showStyleEditor() {
     document.body.appendChild(editorContainer);
     this.styleEditor = editorContainer;
 
+    // 添加拖动功能
+    this.makeDraggable(editorContainer, dragBar);
+
+    // 添加缩放功能
+    this.makeResizable(editorContainer, resizeHandle);
+    
     // 显示面板
     editorContainer.classList.add('show');
 }
@@ -265,6 +271,38 @@ makeDraggable(element, dragHandle) {
     document.addEventListener('mouseup', () => {
         if (isDragging) {
             isDragging = false;
+            document.body.style.userSelect = ''; // 恢复文本选择
+        }
+    });
+}
+
+    /**
+ * 使面板可缩放
+ */
+makeResizable(element, resizeHandle) {
+    let isResizing = false;
+    let startWidth, startHeight, startX, startY;
+
+    resizeHandle.addEventListener('mousedown', (event) => {
+        isResizing = true;
+        startWidth = element.offsetWidth;
+        startHeight = element.offsetHeight;
+        startX = event.clientX;
+        startY = event.clientY;
+        document.body.style.userSelect = 'none'; // 禁止文本选择
+    });
+
+    document.addEventListener('mousemove', (event) => {
+        if (!isResizing) return;
+        const deltaX = event.clientX - startX;
+        const deltaY = event.clientY - startY;
+        element.style.width = `${startWidth + deltaX}px`;
+        element.style.height = `${startHeight + deltaY}px`;
+    });
+
+    document.addEventListener('mouseup', () => {
+        if (isResizing) {
+            isResizing = false;
             document.body.style.userSelect = ''; // 恢复文本选择
         }
     });
