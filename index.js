@@ -233,6 +233,11 @@ showStyleEditor() {
     // 添加拖动功能
     this.makeDraggable(editorContainer, dragBar);
 
+    // 创建缩放控件
+    const resizeHandle = document.createElement('div');
+    resizeHandle.className = 'resize-handle';
+    editorContainer.appendChild(resizeHandle);
+    
     // 添加缩放功能
     this.makeResizable(editorContainer, resizeHandle);
     
