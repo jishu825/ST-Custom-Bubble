@@ -54,11 +54,17 @@ class ChatStylist {
     initialize() {
         console.debug('ChatStylist: Initializing...');
         try {
+            // 检查插入目标是否存在
+            if (!$('#extensions_settings2').length) {
+                console.error('Chat Stylist: Cannot find target container #extensions_settings2');
+                return;
+            }
+
             this.addSettingsUI();
             this.bindEvents();
             console.debug('ChatStylist: Initialization complete');
         } catch (error) {
-            console.error('ChatStylist: Initialization failed', error);
+            console.error('ChatStylist: Initialization failed:', error);
         }
     }
 
@@ -101,9 +107,6 @@ addSettingsUI() {
 
     // 插入设置按钮
     targetContainer.append(settingsHtml);
-    
-    // 将扩展设置添加到页面的设置区域
-    $('#extensions_settings2').append(settingsHtml);
 
     // 绑定悬浮面板的事件
     $('#chat-stylist-editor').on('click', () => {
@@ -119,26 +122,6 @@ addSettingsUI() {
         }
     });
 }
-
-    bindSettingsControls() {
-        $('#chat-stylist-editor').on('click', () => {
-            this.showStyleEditor();
-        });
-
-        $('#chat-stylist-import').on('click', () => {
-            this.importStyles();
-        });
-
-        $('#chat-stylist-export').on('click', () => {
-            this.exportStyles();
-        });
-
-        $('#chat-stylist-reset').on('click', () => {
-            if (confirm('确定要重置所有样式设置吗？')) {
-                this.resetStyles();
-            }
-        });
-    }
 
     bindEvents() {
         const waitForEventSource = async () => {
