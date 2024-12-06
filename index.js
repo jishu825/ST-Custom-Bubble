@@ -54,17 +54,11 @@ class ChatStylist {
     initialize() {
         console.debug('ChatStylist: Initializing...');
         try {
-            // 检查插入目标是否存在
-            if (!$('#extensions_settings2').length) {
-                console.error('Chat Stylist: Cannot find target container #extensions_settings2');
-                return;
-            }
-
             this.addSettingsUI();
             this.bindEvents();
             console.debug('ChatStylist: Initialization complete');
         } catch (error) {
-            console.error('ChatStylist: Initialization failed:', error);
+            console.error('ChatStylist: Initialization failed', error);
         }
     }
 
@@ -97,16 +91,9 @@ addSettingsUI() {
                 </div>
             </div>
         </div>`;
-
-    // 检查插入点是否存在
-    const targetContainer = $('#extensions_settings2');
-    if (!targetContainer.length) {
-        console.error('Cannot find #extensions_settings2 to insert Chat Stylist UI');
-        return;
-    }
-
-    // 插入设置按钮
-    targetContainer.append(settingsHtml);
+    
+    // 将扩展设置添加到页面的设置区域
+    $('#extensions_settings2').append(settingsHtml);
 
     // 绑定悬浮面板的事件
     $('#chat-stylist-editor').on('click', () => {
@@ -122,6 +109,26 @@ addSettingsUI() {
         }
     });
 }
+
+    bindSettingsControls() {
+        $('#chat-stylist-editor').on('click', () => {
+            this.showStyleEditor();
+        });
+
+        $('#chat-stylist-import').on('click', () => {
+            this.importStyles();
+        });
+
+        $('#chat-stylist-export').on('click', () => {
+            this.exportStyles();
+        });
+
+        $('#chat-stylist-reset').on('click', () => {
+            if (confirm('确定要重置所有样式设置吗？')) {
+                this.resetStyles();
+            }
+        });
+    }
 
     bindEvents() {
         const waitForEventSource = async () => {
@@ -226,11 +233,6 @@ showStyleEditor() {
     // 添加拖动功能
     this.makeDraggable(editorContainer, dragBar);
 
-    // 创建缩放控件
-    const resizeHandle = document.createElement('div');
-    resizeHandle.className = 'resize-handle';
-    editorContainer.appendChild(resizeHandle);
-    
     // 添加缩放功能
     this.makeResizable(editorContainer, resizeHandle);
     
@@ -326,13 +328,6 @@ makeResizable(element, resizeHandle) {
 // 初始化扩展
 jQuery(async () => {
     try {
-        // 检查是否加载了所有依赖
-        if (!window.extension_settings || !$('#extensions_settings2').length) {
-            console.error('Chat Stylist: Missing dependencies or target container');
-            return;
-        }
-
-        // 初始化 Chat Stylist
         window.chatStylist = new ChatStylist();
     } catch (error) {
         console.error('Failed to initialize Chat Stylist:', error);
