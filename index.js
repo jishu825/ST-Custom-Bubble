@@ -91,6 +91,16 @@ addSettingsUI() {
                 </div>
             </div>
         </div>`;
+
+    // 检查插入点是否存在
+    const targetContainer = $('#extensions_settings2');
+    if (!targetContainer.length) {
+        console.error('Cannot find #extensions_settings2 to insert Chat Stylist UI');
+        return;
+    }
+
+    // 插入设置按钮
+    targetContainer.append(settingsHtml);
     
     // 将扩展设置添加到页面的设置区域
     $('#extensions_settings2').append(settingsHtml);
@@ -333,6 +343,13 @@ makeResizable(element, resizeHandle) {
 // 初始化扩展
 jQuery(async () => {
     try {
+        // 检查是否加载了所有依赖
+        if (!window.extension_settings || !$('#extensions_settings2').length) {
+            console.error('Chat Stylist: Missing dependencies or target container');
+            return;
+        }
+
+        // 初始化 Chat Stylist
         window.chatStylist = new ChatStylist();
     } catch (error) {
         console.error('Failed to initialize Chat Stylist:', error);
