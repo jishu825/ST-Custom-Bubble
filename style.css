@@ -15,6 +15,8 @@
     left: 50%;
     transform: translate(-50%, -50%);
     width: 360px;
+    height: 50vh; /* 高度设置为显示屏高度的 50% */
+    max-height: 90vh; /* 防止高度超出浏览器窗口 */
     background: var(--SmartThemeBlurTintColor);
     backdrop-filter: blur(var(--SmartThemeBlurStrength));
     border: 1px solid var(--SmartThemeBorderColor);
@@ -24,6 +26,7 @@
     display: none;
     flex-direction: column;
     gap: 10px;
+    overflow: hidden; /* 防止内容溢出 */
 }
 
 /* 显示面板 */
@@ -56,8 +59,6 @@
 /* 标签页内容 */
 .tab-content-container {
     flex: 1;
-    display: flex;
-    flex-direction: column;
     overflow-y: auto;
     padding: 10px;
     border-radius: 8px;
