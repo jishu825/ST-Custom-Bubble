@@ -91,7 +91,8 @@ addSettingsUI() {
                 </div>
             </div>
         </div>`;
-
+    
+    // 将扩展设置添加到页面的设置区域
     $('#extensions_settings2').append(settingsHtml);
 
     // 绑定悬浮面板的事件
