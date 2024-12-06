@@ -1,4 +1,5 @@
 import { DOMUtils } from "../../utils/DOMUtils.js";
+import { StylePanel } from "../StylePanel.js";
 import { ColorPicker } from "../components/ColorPicker.js";
 
 export class BubblePanel {
