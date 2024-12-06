@@ -8,82 +8,21 @@
 @import './ui/styles/editor/controls.css';
 @import './ui/styles/editor/preview.css';
 
-/* 悬浮面板主容器 */
 .chat-stylist-editor {
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 360px; /* 优化宽度 */
+    width: 400px;
     background: var(--SmartThemeBlurTintColor);
     backdrop-filter: blur(var(--SmartThemeBlurStrength));
     border: 1px solid var(--SmartThemeBorderColor);
     border-radius: 10px;
-    padding: 10px 15px;
+    padding: 15px;
     z-index: 10000;
-    display: flex;
+    display: none;
     flex-direction: column;
     gap: 15px;
-}
-
-/* 标签页按钮容器 */
-.tab-buttons {
-    display: flex;
-    justify-content: space-evenly;
-    gap: 8px;
-}
-
-.tab-button {
-    flex: 1;
-    padding: 8px 0;
-    font-size: 0.9em;
-    text-align: center;
-    font-weight: bold;
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
-    border-radius: 6px;
-    color: var(--SmartThemeBodyColor);
-    opacity: 0.8;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.tab-button.active {
-    background: rgba(255, 255, 255, 0.3);
-    opacity: 1;
-}
-
-/* 标签内容容器 */
-.tab-content-container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-    border-radius: 6px;
-    background: rgba(0, 0, 0, 0.05);
-}
-
-/* 每个标签页内容 */
-.tab-content {
-    display: none;
-    padding: 15px;
-}
-
-.tab-content.active {
-    display: block;
-}
-
-/* 样式区域 */
-.style-section {
-    margin-bottom: 15px;
-}
-
-.section-title {
-    font-size: 0.9em;
-    margin-bottom: 8px;
-    font-weight: bold;
-    color: var(--SmartThemeBodyColor);
-    opacity: 0.8;
 }
 
 .chat-stylist-editor.show {

@@ -1,26 +1,3 @@
-switchTab(tabId) {
-    if (tabId === this.activeTab) return; // 如果已经是激活状态则不操作
-
-    // 更新按钮样式
-    const buttons = this.element.querySelectorAll('.tab-button');
-    buttons.forEach(button => {
-        button.classList.toggle('active', button.dataset.tabId === tabId);
-    });
-
-    // 更新内容样式
-    const contents = this.element.querySelectorAll('.tab-content');
-    contents.forEach(content => {
-        content.classList.toggle('active', content.dataset.tabId === tabId);
-    });
-
-    this.activeTab = tabId;
-
-    // 触发回调
-    if (this.options.onTabChanged) {
-        this.options.onTabChanged(tabId);
-    }
-}
-
 /* 标签页容器 */
 .tab-container {
     display: flex;
